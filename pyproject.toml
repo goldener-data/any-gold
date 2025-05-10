@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "exotic-gold"
+version = "0.1.0"
+description = "Custom PyTorch Dataset implementations for publicly available datasets across various modalities"
+readme = "README.md"
+license = "Apache-2.0"
+license-files= ["LICENSE"]
+requires-python = ">=3.8"
+authors = [
+    {name = "goldener-data", email = "yann.chene.tni@gmail.com"},
+]
+
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "numpy>=1.20.0",
+    "pillow>=9.0.0",
+    "tqdm>=4.65.0",
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pre-commit",
+  "ruff",
+  "mypy",
+  "types-pillow",
+  "types-tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/goldener-data/exotic-gold"
+Repository = "https://github.com/goldener-data/exotic-gold"
+Issues = "https://github.com/goldener-data/exotic-gold/issues"
