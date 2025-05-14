@@ -53,8 +53,8 @@ dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 # Iterate through batches
 for batch in dataloader:
-    # Your training/evaluation code here
-    pass
+  # Your training/evaluation code here
+  pass
 ```
 
 ## Contributing
