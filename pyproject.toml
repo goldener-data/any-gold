@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "exotic-gold"
+name = "any-gold"
 version = "0.1.0"
 description = "Custom PyTorch Dataset implementations for publicly available datasets across various modalities"
 readme = "README.md"
@@ -34,6 +34,6 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/goldener-data/exotic-gold"
-Repository = "https://github.com/goldener-data/exotic-gold"
-Issues = "https://github.com/goldener-data/exotic-gold/issues"
+Homepage = "https://github.com/goldener-data/any-gold"
+Repository = "https://github.com/goldener-data/any-gold"
+Issues = "https://github.com/goldener-data/any-gold/issues"

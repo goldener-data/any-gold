@@ -1,9 +1,9 @@
-# exotic-gold
+# any-gold
 
 Have you already been in a situation where you wanted to experiment with a new dataset and wasted few hours
 of your time before even having access to the data? We did and we truely believe that it should not be like that anymore.
 
-Exotic Gold is thus comprehensive collection of custom PyTorch Dataset implementations for
+Any Gold is thus comprehensive collection of custom PyTorch Dataset implementations for
 publicly available datasets across various modalities.
 
 ## Purpose
@@ -31,8 +31,8 @@ a fast Python package installer and resolver. The dependencies are defined in th
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/exotic-gold.git
-cd exotic-gold
+git clone https://github.com/yourusername/any-gold.git
+cd any-gold
 
 # Install dependencies with uv
 uv sync
@@ -42,11 +42,11 @@ source .venv/bin/activate
 ## Usage Example
 
 ```python
-import exotic_gold as eg
+import any_gold as ag
 from torch.utils.data import DataLoader
 
 # Initialize dataset (downloads data if not already present)
-dataset = eg.ExoticDataset()
+dataset = ag.AnyDataset()
 
 # Create DataLoader
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
@@ -62,7 +62,7 @@ for batch in dataloader:
 Contributions are welcome! To contribute to this project:
 
 1. Fork the repository on GitHub
-2. Clone your fork: `git clone https://github.com/yourusername/exotic-gold.git`
+2. Clone your fork: `git clone https://github.com/yourusername/any-gold.git`
 3. Create a new branch for your feature: `git checkout -b feature-name`
 4. Install development dependencies: `uv sync --all-extras`
 5. Set up pre-commit hooks: `pre-commit install`
