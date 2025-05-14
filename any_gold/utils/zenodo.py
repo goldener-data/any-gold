@@ -12,6 +12,15 @@ from torchvision.datasets.utils import extract_archive
 
 
 class ZenodoDataset(VisionDataset):
+    """Base class for Zenodo datasets.
+
+    Zenodo is an open repository for research data and software.
+    It is accessible at https://zenodo.org/.
+
+    This class specify the basic way to download data from Zenodo. Each inherited class must implement the
+    `_move_data_to_root` method to move the data to the root directory after downloading it from Zenodo.
+    """
+
     def __init__(
         self,
         root: str | Path,
@@ -38,9 +47,13 @@ class ZenodoDataset(VisionDataset):
 
     @abstractmethod
     def _move_data_to_root(self, file: Path) -> None:
-        """Make the data available in root directory."""
+        """Make the data available in root directory.
+
+        This method can be used to extract the data from an archive or to reorganise the data after downloading it.
+        """
 
     def download(self) -> None:
+        """Download the data from Zenodo and store the dataset in the root folder."""
         ZENODO_API_TOKEN = os.environ.get("ZENODO_API_TOKEN")
         if ZENODO_API_TOKEN is None:
             raise ValueError(
@@ -63,6 +76,8 @@ class ZenodoDataset(VisionDataset):
 
 
 class ZenodoZipBase(ZenodoDataset):
+    """Base class for Zenodo datasets that are zipped."""
+
     def __init__(
         self,
         root: str | Path,
