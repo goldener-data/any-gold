@@ -33,6 +33,10 @@ dev = [
   "types-tqdm",
 ]
 
+zenodo = [
+  "zenodo-client",
+]
+
 [project.urls]
 Homepage = "https://github.com/goldener-data/exotic-gold"
 Repository = "https://github.com/goldener-data/exotic-gold"
