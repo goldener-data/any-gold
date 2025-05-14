@@ -141,7 +141,7 @@ wheels = [
 ]
 
 [[package]]
-name = "exotic-gold"
+name = "any-gold"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
