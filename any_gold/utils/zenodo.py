@@ -49,7 +49,7 @@ class ZenodoDataset(VisionDataset):
 
         with TemporaryDirectory() as tmpdir:
             # Download the dataset from Zenodo
-            zenodo = Zenodo()
+            zenodo = Zenodo(access_token=ZENODO_API_TOKEN)
             file = zenodo.download_latest(
                 self.record_id,
                 name=self.name,

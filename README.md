@@ -42,7 +42,7 @@ source .venv/bin/activate
 ## Usage Example
 
 ```python
-import exotic_gold as eg
+import any_gold as eg
 from torch.utils.data import DataLoader
 
 # Initialize dataset (downloads data if not already present)
@@ -53,8 +53,8 @@ dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 # Iterate through batches
 for batch in dataloader:
-    # Your training/evaluation code here
-    pass
+  # Your training/evaluation code here
+  pass
 ```
 
 ## Contributing
