@@ -65,7 +65,7 @@ Contributions are welcome! To contribute to this project:
 2. Clone your fork: `git clone https://github.com/yourusername/any-gold.git`
 3. Create a new branch for your feature: `git checkout -b feature-name`
 4. Install development dependencies: `uv sync --all-extras`
-5. Set up pre-commit hooks: `pre-commit install`
+5. Set up pre-commit hooks: `uv run pre-commit install`
 6. Implement a new class that inherits from `torch.utils.data.Dataset`
 7. Include download functionality for the dataset
 8. Add appropriate documentation and usage examples
