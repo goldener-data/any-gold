@@ -17,7 +17,9 @@ class TestPlantSeg:
         record_v3 = zenodo.get_latest_record(PLANTSEG_VERSIONS[3]["record_id"])
         assert record_v3 == PLANTSEG_VERSIONS[3]["record_id"]
 
-    @pytest.mark.skipif(not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True")
+    @pytest.mark.skipif(
+        not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True"
+    )
     def test_dataset(self):
         """
         Test the PlantSeg dataset.
