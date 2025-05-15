@@ -39,7 +39,7 @@ jobs:
 
     - name: Run tests
       env:
-        zenodo_api_token: ${{ secrets.ZENODO_API_TOKEN }}
+        ZENODO_API_TOKEN: ${{ secrets.ZENODO_API_TOKEN }}
       run: |
         uv run pytest tests/
 
