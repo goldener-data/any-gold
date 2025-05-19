@@ -1,26 +1,11 @@
 from pathlib import Path
 from typing import Callable
 
+import pandas as pd
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
-from PIL import Image as PILImage
 
+from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.zenodo import ZenodoZipBase
-
-
-PLANTSEG_VERSIONS = {
-    1: {
-        "record_id": "13762907",
-        "name": "plantseg.zip",
-    },
-    2: {
-        "record_id": "13958858",
-        "name": "plantsegv2.zip",
-    },
-    3: {
-        "record_id": "14935094",
-        "name": "plantsegv3.zip",
-    },
-}
 
 
 class PlantSeg(ZenodoZipBase):
@@ -50,6 +35,22 @@ class PlantSeg(ZenodoZipBase):
         override: If True, will override the existing dataset in the root directory. Default is False.
     """
 
+    _VERSIONS = {
+        1: {
+            "record_id": "13762907",
+            "name": "plantseg.zip",
+        },
+        2: {
+            "record_id": "13958858",
+            "name": "plantsegv2.zip",
+        },
+        3: {
+            "record_id": "14935094",
+            "name": "plantsegv3.zip",
+            "metadata": "Metadatav2.csv",
+        },
+    }
+
     def __init__(
         self,
         root: str | Path,
@@ -60,9 +61,9 @@ class PlantSeg(ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        if version not in PLANTSEG_VERSIONS:
+        if version not in self._VERSIONS:
             raise ValueError(
-                f"Version {version} is not available. Available versions are {list(PLANTSEG_VERSIONS.keys())}."
+                f"Version {version} is not available. Available versions are {list(self._VERSIONS.keys())}."
             )
         self.version = version
 
@@ -72,8 +73,8 @@ class PlantSeg(ZenodoZipBase):
             )
         self.split = split
 
-        self.record_id = PLANTSEG_VERSIONS[version]["record_id"]
-        self.name = PLANTSEG_VERSIONS[version]["name"]
+        self.record_id = self._VERSIONS[version]["record_id"]
+        self.name = self._VERSIONS[version]["name"]
 
         super().__init__(
             root=root,
@@ -83,35 +84,45 @@ class PlantSeg(ZenodoZipBase):
             override=override,
         )
 
-        data_folder = self.root / f"plantsegv{self.version}"
-        self.image_files = list((data_folder / f"images/{self.split}").glob("*.jpg"))
-        self.mask_folder = data_folder / f"annotations/{self.split}"
+    def _setup(self) -> None:
+        if self.override or not self.root.exists():
+            self.download()
+
+        self.samples: list[tuple[Path, str, str]] = []
+        metadata = pd.read_csv(
+            self.root
+            / f"plantsegv{self.version}/{self._VERSIONS[self.version]['metadata']}"
+        )
+        for image_path in (
+            self.root / f"plantsegv{self.version}/images/{self.split}"
+        ).glob("*.jpg"):
+            row = metadata[metadata["Name"] == image_path.name]
+            if len(row) != 1:
+                raise ValueError(
+                    "Expected exactly one row per image in the PlantSeg metadata file."
+                )
+
+            self.samples.append(
+                (image_path, row.iloc[0]["Plant"], row.iloc[0]["Disease"])
+            )
 
     def __len__(self) -> int:
-        """
-        Return the number of images in the dataset.
-        """
-        return len(self.image_files)
-
-    def _load_image(self, path: Path) -> TvImage:
-        pil_image = PILImage.open(path).convert("RGB")
-        return TvImage(pil_image).unsqueeze(0)
-
-    def _load_mask(self, path: Path) -> TvMask:
-        pil_mask = PILImage.open(path).convert("L")
-        return TvMask(pil_mask).unsqueeze(0)
+        return len(self.samples)
 
     def get_image_path(self, index: int) -> Path:
         """Get the path of an image."""
-        return self.image_files[index]
+        return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask]:
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str]:
         """Get an image and its corresponding mask."""
-        image_path = self.image_files[index]
-        mask_path = self.mask_folder / f"{image_path.stem}.png"
+        image_path, plant, disease = self.samples[index]
+        mask_path = (
+            image_path.parent.parent.parent
+            / f"annotations/{self.split}/{image_path.stem}.png"
+        )
 
-        image = self._load_image(image_path)
-        mask = self._load_mask(mask_path)
+        image = load_torchvision_image(image_path)
+        mask = load_torchvision_mask(mask_path)
 
         if self.transform:
             image = self.transform(image)
@@ -120,4 +131,4 @@ class PlantSeg(ZenodoZipBase):
         if self.transforms:
             image, mask = self.transforms(image, mask)
 
-        return image, mask
+        return image, mask, plant, disease

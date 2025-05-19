@@ -3,12 +3,14 @@ from abc import abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable
-
+from logging import getLogger
 
 from torchvision.datasets import VisionDataset
+from torchvision.datasets.utils import extract_archive
+
 from zenodo_client import Zenodo
 
-from torchvision.datasets.utils import extract_archive
+logger = getLogger(__name__)
 
 
 class ZenodoDataset(VisionDataset):
@@ -35,15 +37,15 @@ class ZenodoDataset(VisionDataset):
             target_transform=target_transform,
             transforms=transforms,
         )
-        self.root = root if isinstance(root, Path) else Path(root)
-        self.transform = transform
-        self.target_transform = target_transform
-
+        self.override = override
         self.record_id: str
         self.name: str
 
-        if override or not self.root.exists():
-            self.download()
+        self._setup()
+
+    @abstractmethod
+    def _setup(self) -> None:
+        """download the data from Synapse and initialize the elements of the dataset."""
 
     @abstractmethod
     def _move_data_to_root(self, file: Path) -> None:
@@ -63,6 +65,7 @@ class ZenodoDataset(VisionDataset):
         with TemporaryDirectory() as tmpdir:
             # Download the dataset from Zenodo
             zenodo = Zenodo(access_token=ZENODO_API_TOKEN)
+            logger.info(f"Downloading {self.record_id} from Zenodo to {tmpdir}")
             file = zenodo.download_latest(
                 self.record_id,
                 name=self.name,
@@ -72,6 +75,7 @@ class ZenodoDataset(VisionDataset):
             if not self.root.exists():
                 self.root.mkdir(parents=True, exist_ok=True)
 
+            logger.info(f"Downloading {self.record_id} from Zenodo to {tmpdir}")
             self._move_data_to_root(file)
 
 
