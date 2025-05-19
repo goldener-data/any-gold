@@ -19,8 +19,10 @@ class ZenodoDataset(VisionDataset):
     Zenodo is an open repository for research data and software.
     It is accessible at https://zenodo.org/.
 
-    This class specify the basic way to download data from Zenodo. Each inherited class must implement the
+    This class specifies the basic way to download data from Zenodo. Each inherited class must implement the
     `_move_data_to_root` and `_setup` methods to download the data from Zenodo.
+
+    The ZENODO_API_TOKEN environment variable must be set to access Zenodo datasets.
     """
 
     def __init__(
@@ -49,7 +51,7 @@ class ZenodoDataset(VisionDataset):
 
     @abstractmethod
     def _move_data_to_root(self, file: Path) -> None:
-        """Make the data available in root directory.
+        """Make the data available in the root directory.
 
         This method can be used to extract the data from an archive or to reorganise the data after downloading it.
         """

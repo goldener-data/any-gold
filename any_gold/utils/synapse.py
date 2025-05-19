@@ -20,8 +20,10 @@ class SynapseDataset(VisionDataset):
     Synapse is an open repository for biomedical research data and software.
     It is accessible at https://www.synapse.org/.
 
-    This class specify the basic way to download data from Synapse. Each inherited class must implement the
+    This class specifies the basic way to download data from Synapse. Each inherited class must implement the
     `_move_data_to_root` and `_setup` methods to download the data from Synapse.
+
+    The SYNAPSE_API_TOKEN environment variable must be set to access Synapse datasets.
     """
 
     def __init__(
@@ -51,7 +53,7 @@ class SynapseDataset(VisionDataset):
 
     @abstractmethod
     def _move_data_to_root(self, files: list[synapseclient.entity.File]) -> None:
-        """Make the data available in root directory.
+        """Make the data available in the root directory.
 
         This method can be used to extract the data from an archive or to reorganise the data after downloading it.
         """
