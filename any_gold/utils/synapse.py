@@ -15,6 +15,15 @@ logger = getLogger(__name__)
 
 
 class SynapseDataset(VisionDataset):
+    """Base class for Synapse datasets.
+
+    Synapse is an open repository for biomedical research data and software.
+    It is accessible at https://www.synapse.org/.
+
+    This class specify the basic way to download data from Synapse. Each inherited class must implement the
+    `_move_data_to_root` and `_setup` methods to download the data from Synapse.
+    """
+
     def __init__(
         self,
         root: str | Path,
@@ -67,7 +76,7 @@ class SynapseDataset(VisionDataset):
 
 
 class SynapseZipBase(SynapseDataset):
-    """Base class for Zenodo datasets that are zipped."""
+    """Base class for Synapse datasets that are zipped."""
 
     def __init__(
         self,

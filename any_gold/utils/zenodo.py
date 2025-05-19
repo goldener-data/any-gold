@@ -20,7 +20,7 @@ class ZenodoDataset(VisionDataset):
     It is accessible at https://zenodo.org/.
 
     This class specify the basic way to download data from Zenodo. Each inherited class must implement the
-    `_move_data_to_root` method to move the data to the root directory after downloading it from Zenodo.
+    `_move_data_to_root` and `_setup` methods to download the data from Zenodo.
     """
 
     def __init__(
@@ -45,7 +45,7 @@ class ZenodoDataset(VisionDataset):
 
     @abstractmethod
     def _setup(self) -> None:
-        """download the data from Synapse and initialize the elements of the dataset."""
+        """download the data from Zenodo and initialize the elements of the dataset."""
 
     @abstractmethod
     def _move_data_to_root(self, file: Path) -> None:

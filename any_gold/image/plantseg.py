@@ -18,7 +18,7 @@ class PlantSeg(ZenodoZipBase):
     The dataset is available in three versions, each with different images and masks.
 
     The dataset is downloaded from [Zenodo](https://zenodo.org/records/14935094)
-    and its data will be downloaded a,d stored in the specified root directory.
+    and its data will be downloaded and stored in the specified root directory.
 
     There are 3 different splits available: train, val, and test.
 
@@ -33,6 +33,7 @@ class PlantSeg(ZenodoZipBase):
         transforms: A transform to apply to both images and masks.
         It cannot be set together with transform and target_transform.
         override: If True, will override the existing dataset in the root directory. Default is False.
+        samples: A list of tuples containing the image path, plant name, and disease name.
     """
 
     _VERSIONS = {
@@ -114,7 +115,7 @@ class PlantSeg(ZenodoZipBase):
         return self.samples[index][0]
 
     def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str]:
-        """Get an image and its corresponding mask."""
+        """Get an image and its corresponding mask together with the plant species and disease."""
         image_path, plant, disease = self.samples[index]
         mask_path = (
             image_path.parent.parent.parent
