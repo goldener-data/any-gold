@@ -13,12 +13,16 @@ class TestKPITask1PatchLevel:
         syn = synapseclient.Synapse()
         syn.login(authToken=SYNAPSE_API_TOKEN)
         walks_train = list(
-            synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["train"])
+            synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["train"]["entity"])
         )
         assert walks_train[0][2][0][1] == "syn60280711"
-        walks_val = list(synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["val"]))
+        walks_val = list(
+            synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["val"]["entity"])
+        )
         assert walks_val[0][2][0][1] == "syn60280716"
-        walks_test = list(synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["test"]))
+        walks_test = list(
+            synapseutils.walk(syn, KPITask1PatchLevel._ENTITIES["test"]["entity"])
+        )
         assert walks_test[0][2][0][1] == "syn63688338"
 
     @pytest.mark.skipif(
