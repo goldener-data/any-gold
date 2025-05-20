@@ -33,6 +33,7 @@ dev = [
   "mypy",
   "types-pillow",
   "types-tqdm",
+  "pandas-stubs",
 ]
 
 zenodo = [
