@@ -3,9 +3,9 @@ name: Build and Test
 on:
   check_run:
     types: [rerequested, completed]
-  push:
-    branches:
-      - main
+
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   build:
