@@ -22,6 +22,7 @@ dependencies = [
     "tqdm>=4.65.0",
     "requests>=2.28.0",
     "pathlib",
+    "pandas",
 ]
 
 [project.optional-dependencies]
@@ -32,10 +33,15 @@ dev = [
   "mypy",
   "types-pillow",
   "types-tqdm",
+  "pandas-stubs",
 ]
 
 zenodo = [
   "zenodo-client",
+]
+
+synapse = [
+  "synapseclient",
 ]
 
 viz = [

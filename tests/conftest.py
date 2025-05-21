@@ -8,3 +8,4 @@ TEST_DATASET_LOADING = os.environ.get("TEST_DATASET_LOADING", "false").lower() i
 )
 
 ZENODO_API_TOKEN = os.environ.get("ZENODO_API_TOKEN", None)
+SYNAPSE_API_TOKEN = os.environ.get("SYNAPSE_API_TOKEN", None)
