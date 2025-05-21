@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.28.0",
     "pathlib",
     "pandas",
+    "datasets[vision]",
 ]
 
 [project.optional-dependencies]
