@@ -8,7 +8,7 @@ from torchvision.datasets import VisionDataset
 class AnyDataset(Dataset):
     """Base class for any dataset.
 
-    Arttributes:
+    Attributes:
         root: The root directory where the dataset is stored.
         override: If True, will override the existing dataset in the root directory.
     """
