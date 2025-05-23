@@ -27,10 +27,6 @@ class SynapseDataset(AnyDataset):
 
     Attributes:
         root: The root directory where the dataset is stored.
-        transform: A transform to apply to the images.
-        target_transform: A transform to apply to the masks.
-        transforms: A transform to apply to both images and masks.
-        It cannot be set together with transform and target_transform.
         override: If True, will override the existing dataset in the root directory. Default is False.
         entity: The Synapse entity ID of the dataset.
     """
