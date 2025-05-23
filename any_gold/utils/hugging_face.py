@@ -18,8 +18,7 @@ class HuggingFaceDataset(AnyDataset):
     Hugging Face is an open repository for machine learning datasets and models.
     It is accessible at https://huggingface.co/.
 
-    This class specifies the basic way to download data from Hugging Face. Each inherited class must implement the
-    `_move_data_to_root` and `_setup` methods to download the data from Hugging Face.
+    This class specifies the basic way to download data from Hugging Face.
 
     The HUGGINGFACE_API_TOKEN environment variable must be set to access protected Hugging Face datasets.
 
