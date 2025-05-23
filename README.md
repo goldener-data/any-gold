@@ -23,6 +23,10 @@ you can focus on experimenting with it.
 - **Consistent API**: Uniform interface across different dataset implementations
 - **Minimal Dependencies**: Core dependencies are managed with `uv`
 
+## Available Datasets
+
+- `PlantSeg`: Large-scale in-the-wild dataset for plant disease segmentation ([Paper](https://arxiv.org/abs/2409.04038), [Zenodo](https://zenodo.org/records/14935094))
+
 ## Installation
 
 Dependencies in this repository are managed with [`uv`](https://github.com/astral-sh/uv),

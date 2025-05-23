@@ -3,11 +3,12 @@ from typing import Callable
 
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
+from any_gold.utils.dataset import AnyVisionDataset
 from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.synapse import SynapseZipBase
 
 
-class KPITask1PatchLevel(SynapseZipBase):
+class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
@@ -57,19 +58,25 @@ class KPITask1PatchLevel(SynapseZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
+        AnyVisionDataset.__init__(
+            self,
+            root=root,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+            override=override,
+        )
+
         if split not in self._ENTITIES:
             raise ValueError(
                 f"Split {split} is not available. Available splits are {self._ENTITIES.keys()}."
             )
         self.split = split
         self.entity = self._ENTITIES[split]["entity"]
-
-        super().__init__(
+        SynapseZipBase.__init__(
+            self,
             root=root,
             entity=self.entity,
-            transform=transform,
-            target_transform=target_transform,
-            transforms=transforms,
             override=override,
         )
 
@@ -92,8 +99,8 @@ class KPITask1PatchLevel(SynapseZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str]:
-        """Get an image and its corresponding mask together with the disease name."""
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, int]:
+        """Get an image and its corresponding mask together with the disease name and the index."""
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
 
@@ -107,4 +114,4 @@ class KPITask1PatchLevel(SynapseZipBase):
         if self.transforms:
             image, mask = self.transforms(image, mask)
 
-        return image, mask, disease
+        return image, mask, disease, index

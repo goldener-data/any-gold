@@ -2,19 +2,19 @@ import os
 from abc import abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable
 from logging import getLogger
 
-from torchvision.datasets import VisionDataset
 from torchvision.datasets.utils import extract_archive
 
 import synapseclient
 import synapseutils
 
+from any_gold.utils.dataset import AnyDataset
+
 logger = getLogger(__name__)
 
 
-class SynapseDataset(VisionDataset):
+class SynapseDataset(AnyDataset):
     """Base class for Synapse datasets.
 
     Synapse is an open repository for biomedical research data and software.
@@ -24,25 +24,28 @@ class SynapseDataset(VisionDataset):
     `_move_data_to_root` and `_setup` methods to download the data from Synapse.
 
     The SYNAPSE_API_TOKEN environment variable must be set to access Synapse datasets.
+
+    Attributes:
+        root: The root directory where the dataset is stored.
+        transform: A transform to apply to the images.
+        target_transform: A transform to apply to the masks.
+        transforms: A transform to apply to both images and masks.
+        It cannot be set together with transform and target_transform.
+        override: If True, will override the existing dataset in the root directory. Default is False.
+        entity: The Synapse entity ID of the dataset.
     """
 
     def __init__(
         self,
         root: str | Path,
         entity: str,
-        transform: Callable | None = None,
-        target_transform: Callable | None = None,
-        transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
         super().__init__(
             root=root,
-            transform=transform,
-            target_transform=target_transform,
-            transforms=transforms,
+            override=override,
         )
 
-        self.override = override
         self.entity = entity
 
         self._setup()
@@ -84,14 +87,9 @@ class SynapseZipBase(SynapseDataset):
         self,
         root: str | Path,
         entity: str,
-        transform: Callable | None = None,
-        target_transform: Callable | None = None,
-        transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        super().__init__(
-            root, entity, transform, target_transform, transforms, override
-        )
+        super().__init__(root, entity, override)
 
     def _move_data_to_root(self, files: list[synapseclient.entity.File]) -> None:
         """Move the data to the root directory."""

@@ -4,11 +4,12 @@ from typing import Callable
 import pandas as pd
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
+from any_gold.utils.dataset import AnyVisionDataset
 from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
-class PlantSeg(ZenodoZipBase):
+class PlantSeg(AnyVisionDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in
@@ -62,6 +63,14 @@ class PlantSeg(ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
+        AnyVisionDataset.__init__(
+            self,
+            root=root,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+        )
+
         if version not in self._VERSIONS:
             raise ValueError(
                 f"Version {version} is not available. Available versions are {list(self._VERSIONS.keys())}."
@@ -74,14 +83,11 @@ class PlantSeg(ZenodoZipBase):
             )
         self.split = split
 
-        self.record_id = self._VERSIONS[version]["record_id"]
-        self.name = self._VERSIONS[version]["name"]
-
-        super().__init__(
+        ZenodoZipBase.__init__(
+            self,
             root=root,
-            transform=transform,
-            target_transform=target_transform,
-            transforms=transforms,
+            record_id=self._VERSIONS[version]["record_id"],
+            name=self._VERSIONS[version]["name"],
             override=override,
         )
 
@@ -114,8 +120,8 @@ class PlantSeg(ZenodoZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str]:
-        """Get an image and its corresponding mask together with the plant species and disease."""
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
+        """Get an image and its corresponding mask together with the plant species, disease and index."""
         image_path, plant, disease = self.samples[index]
         mask_path = (
             image_path.parent.parent.parent
@@ -132,4 +138,4 @@ class PlantSeg(ZenodoZipBase):
         if self.transforms:
             image, mask = self.transforms(image, mask)
 
-        return image, mask, plant, disease
+        return image, mask, plant, disease, index

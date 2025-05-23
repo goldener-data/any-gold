@@ -29,11 +29,6 @@ class TestKPITask1PatchLevel:
         not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True"
     )
     def test_dataset(self):
-        """
-        Test the PlantSeg dataset.
-        """
-
-        # Create a PlantSeg dataset instance
         dataset = KPITask1PatchLevel(
             root=Path("/storage/ml/kpi_task1"),
             split="train",
@@ -41,7 +36,8 @@ class TestKPITask1PatchLevel:
 
         assert len(dataset) == 5331, "Dataset length is not as expected"
 
-        image, mask, target = dataset[0]
+        image, mask, target, index = dataset[0]
+        assert index == 0, "Index is not as expected"
         assert image.shape == (1, 3, 2048, 2048), "Image shape is not as expected"
         assert mask.shape == (1, 1, 2048, 2048), "Mask shape is not as expected"
         assert dataset.get_image_path(0) == Path(
