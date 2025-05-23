@@ -26,6 +26,7 @@ you can focus on experimenting with it.
 ## Available Datasets
 
 - `PlantSeg`: Large-scale in-the-wild dataset for plant disease segmentation ([Paper](https://arxiv.org/abs/2409.04038), [Zenodo](https://zenodo.org/records/14935094))
+- `MVTecADDataset`: A dataset for anomaly detection tasks, featuring high-resolution images of various objects with labeled anomalies ([Website](https://www.mvtec.com/company/research/datasets/mvtec-ad), [Paper](https://arxiv.org/abs/1901.08954))
 
 ## Installation
 
