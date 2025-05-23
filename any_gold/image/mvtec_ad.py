@@ -12,7 +12,7 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
     """MVTec Anomaly Detection Dataset.
 
     The Mvtec Anomaly Detection dataset is introduced in
-    [The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection](https://link.springer.com/content/pdf/10.1007/s11263-020-01400-4.pdf
+    [The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection](https://link.springer.com/content/pdf/10.1007/s11263-020-01400-4.pdf)
 
     The dataset is a collection of images and their corresponding segmentation masks for various
     manufacturing objects and type of defects.

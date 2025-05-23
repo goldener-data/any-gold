@@ -12,7 +12,7 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
-    [KPI Task 1: Patch Level Segmentation](https://www.synapse.org/#!Synapse:syn60249790/wiki/604679)
+    [KPIs 2024 Challenge: Advancing Glomerular Segmentation from Patch-to Slide-Level](https://arxiv.org/pdf/2502.07288)
 
     The dataset is a collection of images and their corresponding segmentation masks
     for glomeruli identification in various Chronic kidney diseases (CKD).
