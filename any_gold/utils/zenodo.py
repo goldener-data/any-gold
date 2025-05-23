@@ -2,18 +2,18 @@ import os
 from abc import abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable
 from logging import getLogger
 
-from torchvision.datasets import VisionDataset
 from torchvision.datasets.utils import extract_archive
 
 from zenodo_client import Zenodo
 
+from any_gold.utils.dataset import AnyDataset
+
 logger = getLogger(__name__)
 
 
-class ZenodoDataset(VisionDataset):
+class ZenodoDataset(AnyDataset):
     """Base class for Zenodo datasets.
 
     Zenodo is an open repository for research data and software.
@@ -23,25 +23,26 @@ class ZenodoDataset(VisionDataset):
     `_move_data_to_root` and `_setup` methods to download the data from Zenodo.
 
     The ZENODO_API_TOKEN environment variable must be set to access Zenodo datasets.
+
+    Attributes:
+        root: The root directory where the dataset is stored.
+        record_id: The record ID of the dataset on Zenodo.
+        name: The name of the dataset on Zenodo.
+        override: If True, will override the existing dataset in the root directory. Default is False.
     """
 
     def __init__(
         self,
         root: str | Path,
-        transform: Callable | None = None,
-        target_transform: Callable | None = None,
-        transforms: Callable | None = None,
+        record_id: str,
+        name: str,
         override: bool = False,
     ) -> None:
-        super().__init__(
-            root=root,
-            transform=transform,
-            target_transform=target_transform,
-            transforms=transforms,
-        )
+        super().__init__(root=root, override=override)
         self.override = override
-        self.record_id: str
-        self.name: str
+
+        self.record_id = record_id
+        self.name = name
 
         self._setup()
 
@@ -87,12 +88,11 @@ class ZenodoZipBase(ZenodoDataset):
     def __init__(
         self,
         root: str | Path,
-        transform: Callable | None = None,
-        target_transform: Callable | None = None,
-        transforms: Callable | None = None,
+        record_id: str,
+        name: str,
         override: bool = False,
     ) -> None:
-        super().__init__(root, transform, target_transform, transforms, override)
+        super().__init__(root, record_id, name, override)
 
     def _move_data_to_root(self, file: Path) -> None:
         """Move the data to the root directory."""

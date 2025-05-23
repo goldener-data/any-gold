@@ -21,11 +21,6 @@ class TestPlantSeg:
         not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True"
     )
     def test_dataset(self):
-        """
-        Test the PlantSeg dataset.
-        """
-
-        # Create a PlantSeg dataset instance
         dataset = PlantSeg(
             root=Path("/storage/ml/plantseg"),
             version=3,
@@ -34,7 +29,8 @@ class TestPlantSeg:
 
         assert len(dataset) == 7916, "Dataset length is not as expected"
 
-        image, mask, plant, disease = dataset[0]
+        image, mask, plant, disease, index = dataset[0]
+        assert index == 0, "Index is not as expected"
         assert image.shape == (1, 3, 853, 640), "Image shape is not as expected"
         assert mask.shape == (1, 1, 853, 640), "Mask shape is not as expected"
         assert dataset.get_image_path(0) == Path(

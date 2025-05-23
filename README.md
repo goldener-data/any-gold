@@ -23,6 +23,14 @@ you can focus on experimenting with it.
 - **Consistent API**: Uniform interface across different dataset implementations
 - **Minimal Dependencies**: Core dependencies are managed with `uv`
 
+## Available Datasets
+
+### Image Datasets
+
+- `PlantSeg`: Large-scale in-the-wild dataset for plant disease segmentation ([Paper](https://arxiv.org/abs/2409.04038), [Zenodo](https://zenodo.org/records/14935094))
+- `MVTecADDataset`: Anomaly detection dataset for industrial inspection ([Paper](https://link.springer.com/content/pdf/10.1007/s11263-020-01400-4.pdf), [Hugging Face](https://huggingface.co/datasets/TheoM55/mvtec_all_objects_split))
+- `KPITask1PatchLevel`: A dataset for kidney disease segmentation ([Paper](https://arxiv.org/pdf/2502.07288), [Synapse](https://www.synapse.org/Synapse:syn63688309))
+
 ## Installation
 
 Dependencies in this repository are managed with [`uv`](https://github.com/astral-sh/uv),
@@ -66,7 +74,7 @@ Contributions are welcome! To contribute to this project:
 3. Create a new branch for your feature: `git checkout -b feature-name`
 4. Install development dependencies: `uv sync --all-extras`
 5. Set up pre-commit hooks: `uv run pre-commit install`
-6. Implement a new class that inherits from `torch.utils.data.Dataset`
+6. Implement a new class that inherits from `AnyDataset`
 7. Include download functionality for the dataset
 8. Add appropriate documentation and usage examples
 9. Ensure code passes all pre-commit checks
