@@ -39,7 +39,6 @@ class ZenodoDataset(AnyDataset):
         override: bool = False,
     ) -> None:
         super().__init__(root=root, override=override)
-        self.override = override
 
         self.record_id = record_id
         self.name = name

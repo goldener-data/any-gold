@@ -1,0 +1,119 @@
+import shutil
+from pathlib import Path
+from typing import Callable
+
+from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
+
+from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.kaggle import KaggleDataset
+from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
+
+
+class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
+    """PlantSeg Dataset from Zenodo.
+
+    The DeepGlobe road extraction dataset is introduced in
+    [DeepGlobe 2018: A Challenge to Parse the Earth Through Satellite Images](https://arxiv.org/pdf/1805.06561)
+
+    The dataset is a collection of satellite images with road to be extracted from.
+    Only the training set is integrating road location (1 mask per image)
+
+    The dataset is downloaded from [Kaggle](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset)
+    and its data will be downloaded and stored in the specified root directory.
+
+    There are 3 different splits available: train, val, and test.
+
+    Attributes:
+        root: The root directory where the dataset is stored.
+        split: The split of the dataset to use. Can be 'train', 'val', or 'test'. Default is 'train'.
+        handle: The name of the dataset on Kaggle (same as _HANDLE).
+        transform: A transform to apply to the images.
+        target_transform: A transform to apply to the masks.
+        transforms: A transform to apply to both images and masks.
+        It cannot be set together with transform and target_transform.
+        override: If True, will override the existing dataset in the root directory. Default is False.
+        samples: A list of file paths to the satellite images in the specified split.
+    """
+
+    _HANDLE = "balraj98/deepglobe-road-extraction-dataset/versions/2"
+
+    def __init__(
+        self,
+        root: str | Path,
+        split: str = "train",
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
+        override: bool = False,
+    ) -> None:
+        AnyVisionDataset.__init__(
+            self,
+            root=root,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+        )
+
+        if split not in ("train", "val", "test"):
+            raise ValueError(
+                f"Split {split} is not available. Available splits are ['train', 'val', 'test']."
+            )
+        self.split = split
+
+        KaggleDataset.__init__(
+            self,
+            root=root,
+            handle=self._HANDLE,
+            override=override,
+        )
+
+    def _move_data_to_root(self, dataset_directory: Path) -> None:
+        self.root.mkdir(parents=True, exist_ok=True)
+        for file in dataset_directory.rglob("*"):
+            if file.is_file():
+                relative_path = file.relative_to(dataset_directory)
+                target_path = self.root / relative_path
+                if target_path.parent.stem == "valid":
+                    target_path = target_path.parent.parent / f"val/{target_path.name}"
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(file), str(target_path))
+
+    def _setup(self) -> None:
+        if self.override or not self.root.exists():
+            self.download()
+
+        self.samples = [
+            image_path for image_path in (self.root / self.split).glob("*_sat.jpg")
+        ]
+
+    def __len__(self) -> int:
+        return len(self.samples)
+
+    def get_image_path(self, index: int) -> Path:
+        """Get the path of an image."""
+        return self.samples[index]
+
+    def __getitem__(
+        self, index: int
+    ) -> tuple[TvImage, TvMask, int] | tuple[TvImage, int]:
+        """Get an image and its corresponding mask together index.
+
+        If the split is not 'train', the mask will be None and only the image and index will be returned.
+        """
+        image_path = self.samples[index]
+        mask_path = image_path.parent / f"{image_path.stem[:-3]}mask.png"
+
+        image = load_torchvision_image(image_path)
+        mask = load_torchvision_mask(mask_path) if mask_path.exists() else None
+
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            mask = self.target_transform(mask)
+        if self.transforms:
+            image, mask = self.transforms(image, mask)
+
+        if mask is None:
+            return image, index
+
+        return image, mask, index
