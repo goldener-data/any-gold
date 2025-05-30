@@ -1,5 +1,6 @@
+from abc import abstractmethod
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Any
 
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
@@ -22,6 +23,14 @@ class AnyDataset(Dataset):
 
         self.root = Path(root)
         self.override = override
+
+    @abstractmethod
+    def get_raw(self, index: int) -> tuple[Any, ...]:
+        """Get the raw data for the given index."""
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Get the length of the dataset."""
 
 
 class AnyVisionDataset(VisionDataset, AnyDataset):
@@ -53,3 +62,25 @@ class AnyVisionDataset(VisionDataset, AnyDataset):
             target_transform=target_transform,
             transforms=transforms,
         )
+
+
+class AnyRawDataset:
+    """Wrapper allowing to load raw data from a dataset.
+
+    Attributes:
+        dataset: The dataset to wrap.
+    """
+
+    def __init__(
+        self,
+        dataset: AnyDataset,
+    ) -> None:
+        self._dataset = dataset
+
+    def __get_item__(self, index: int) -> tuple[Any, ...]:
+        """Get the raw data for the given index."""
+        return self._dataset.get_raw(index)
+
+    def __len__(self) -> int:
+        """Get the length of the dataset."""
+        return len(self._dataset)

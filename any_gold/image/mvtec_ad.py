@@ -73,8 +73,11 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
-        """Get an image and its corresponding mask together with the label, the anomaly detection target and the index."""
+    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
+        """
+        Get the image and its corresponding mask together with the label,
+        the anomaly detection target and the index.
+        """
         sample = self.samples[index]
 
         image = TvImage(sample["image_path"].unsqueeze(0))
@@ -85,6 +88,15 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
             else torch.zeros((1, 1, *image.shape[-2:]), dtype=torch.uint8)
         )
 
+        return image, mask, sample["defect"], sample["label"], index
+
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
+        """
+        Get the transformed image and its corresponding mask together with the label,
+        the anomaly detection target and the index.
+        """
+        image, mask, defect, label, index = self.get_raw(index)
+
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
@@ -92,4 +104,4 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
         if self.transforms:
             image, mask = self.transforms(image, mask)
 
-        return image, mask, sample["defect"], sample["label"], index
+        return image, mask, defect, label, index
