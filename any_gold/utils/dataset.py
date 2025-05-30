@@ -28,6 +28,10 @@ class AnyDataset(Dataset):
     def get_raw(self, index: int) -> tuple[Any, ...]:
         """Get the raw data for the given index."""
 
+    @abstractmethod
+    def __len__(self) -> int:
+        """Get the length of the dataset."""
+
 
 class AnyVisionDataset(VisionDataset, AnyDataset):
     """Base class for any vision dataset.
@@ -58,3 +62,25 @@ class AnyVisionDataset(VisionDataset, AnyDataset):
             target_transform=target_transform,
             transforms=transforms,
         )
+
+
+class AnyRawDataset:
+    """Wrapper allowing to load raw data from a dataset.
+
+    Attributes:
+        dataset: The dataset to wrap.
+    """
+
+    def __init__(
+        self,
+        dataset: AnyDataset,
+    ) -> None:
+        self._dataset = dataset
+
+    def __get_item__(self, index: int) -> tuple[Any, ...]:
+        """Get the raw data for the given index."""
+        return self._dataset.get_raw(index)
+
+    def __len__(self) -> int:
+        """Get the length of the dataset."""
+        return len(self._dataset)
