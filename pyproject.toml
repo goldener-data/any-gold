@@ -11,11 +11,15 @@ authors = [
 ]
 
 dependencies = [
-    "torch",
-    "torchvision",
-    "pathlib",
-    "pandas",
-    "numpy"
+  "torch",
+  "torchvision",
+  "pathlib",
+  "pandas",
+  "numpy",
+  "datasets",
+  "kagglehub",
+  "zenodo-client",
+  "synapseclient",
 ]
 
 [project.optional-dependencies]
@@ -26,23 +30,6 @@ dev = [
   "mypy",
   "pandas-stubs",
 ]
-
-huggingface = [
-    "datasets",
-]
-
-kaggle = [
-    "kagglehub",
-]
-
-zenodo = [
-  "zenodo-client",
-]
-
-synapse = [
-  "synapseclient",
-]
-
 
 [project.urls]
 Homepage = "https://github.com/goldener-data/any-gold"
