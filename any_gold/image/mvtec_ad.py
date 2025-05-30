@@ -4,11 +4,19 @@ from typing import Callable
 import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
-class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
+class MVTecADOutput(AnyVisionSegmentationOutput):
+    defect: str
+    label: torch.Tensor
+
+
+class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
     """MVTec Anomaly Detection Dataset.
 
     The Mvtec Anomaly Detection dataset is introduced in
@@ -61,7 +69,7 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
             hf_split=f"{self.category}.{self.split}",
             override=override,
         )
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -73,7 +81,7 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
+    def get_raw(self, index: int) -> MVTecADOutput:
         """
         Get the image and its corresponding mask together with the label,
         the anomaly detection target and the index.
@@ -88,20 +96,10 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
             else torch.zeros((1, 1, *image.shape[-2:]), dtype=torch.uint8)
         )
 
-        return image, mask, sample["defect"], sample["label"], index
-
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
-        """
-        Get the transformed image and its corresponding mask together with the label,
-        the anomaly detection target and the index.
-        """
-        image, mask, defect, label, index = self.get_raw(index)
-
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, defect, label, index
+        return MVTecADOutput(
+            image=image,
+            mask=mask,
+            defect=sample["defect"],
+            label=sample["label"],
+            index=index,
+        )

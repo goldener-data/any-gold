@@ -2,14 +2,21 @@ from pathlib import Path
 from typing import Callable
 
 import pandas as pd
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
-class PlantSeg(AnyVisionDataset, ZenodoZipBase):
+class PlantSegOutput(AnyVisionSegmentationOutput):
+    plant: str
+    disease: str
+
+
+class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in
@@ -63,7 +70,7 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -120,7 +127,7 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
+    def get_raw(self, index: int) -> PlantSegOutput:
         """Get the image and its corresponding mask together with the plant species, disease and index."""
         image_path, plant, disease = self.samples[index]
         mask_path = (
@@ -131,17 +138,6 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path)
 
-        return image, mask, plant, disease, index
-
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
-        """Get the transformed image and its corresponding mask together with the plant species, disease and index."""
-        image, mask, plant, disease, index = self.get_raw(index)
-
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, plant, disease, index
+        return PlantSegOutput(
+            image=image, mask=mask, plant=plant, disease=disease, index=index
+        )

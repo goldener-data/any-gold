@@ -1,9 +1,14 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable, OrderedDict
 
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
+from torchvision.tv_tensors import Image as TvImage
+
+
+class AnyOutput(OrderedDict):
+    index: int
 
 
 class AnyDataset(Dataset):
@@ -25,15 +30,24 @@ class AnyDataset(Dataset):
         self.override = override
 
     @abstractmethod
-    def get_raw(self, index: int) -> tuple[Any, ...]:
+    def get_raw(self, index: int) -> AnyOutput:
         """Get the raw data for the given index."""
+
+    @abstractmethod
+    def __get_item__(self, index: int) -> AnyOutput:
+        """Get the transformed data for the given index."""
 
     @abstractmethod
     def __len__(self) -> int:
         """Get the length of the dataset."""
 
 
-class AnyVisionDataset(VisionDataset, AnyDataset):
+class AnyVisionSegmentationOutput(AnyOutput):
+    image: TvImage
+    mask: TvImage
+
+
+class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
     """Base class for any vision dataset.
 
     Attributes:
@@ -63,6 +77,26 @@ class AnyVisionDataset(VisionDataset, AnyDataset):
             transforms=transforms,
         )
 
+    @abstractmethod
+    def get_raw(self, index: int) -> AnyVisionSegmentationOutput:
+        """Get the raw data for the given index."""
+
+    def __getitem__(self, index: int) -> AnyVisionSegmentationOutput:
+        """Get the transformed image and its corresponding information."""
+        output = self.get_raw(index)
+
+        image = output.image
+        mask = output.mask
+
+        if self.transform:
+            output.image = self.transform(image)
+        if self.target_transform:
+            output.mask = self.target_transform(mask)
+        if self.transforms:
+            output.image, output.mask = self.transforms(image, mask)
+
+        return output
+
 
 class AnyRawDataset:
     """Wrapper allowing to load raw data from a dataset.
@@ -77,8 +111,8 @@ class AnyRawDataset:
     ) -> None:
         self._dataset = dataset
 
-    def __get_item__(self, index: int) -> tuple[Any, ...]:
-        """Get the raw data for the given index."""
+    def __get_item__(self, index: int) -> AnyOutput:
+        """Get the raw data of the dataset for the given index."""
         return self._dataset.get_raw(index)
 
     def __len__(self) -> int:

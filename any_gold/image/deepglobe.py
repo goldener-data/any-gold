@@ -2,15 +2,30 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
+from torchvision.tv_tensors import Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.kaggle import KaggleDataset
 from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 
 
-class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
-    """PlantSeg Dataset from Zenodo.
+class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
+    """Output class for the DeepGlobe Road Extraction dataset.
+
+    Attributes:
+        image: The satellite image.
+        mask: The segmentation mask for the road.
+        index: The index of the sample in the dataset.
+    """
+
+    mask: TvMask | None
+
+
+class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
+    """Deepglobe road extraction dataset from kaggle.
 
     The DeepGlobe road extraction dataset is introduced in
     [DeepGlobe 2018: A Challenge to Parse the Earth Through Satellite Images](https://arxiv.org/pdf/1805.06561)
@@ -46,7 +61,7 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -93,12 +108,10 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
         """Get the path of an image."""
         return self.samples[index]
 
-    def __getitem__(
-        self, index: int
-    ) -> tuple[TvImage, TvMask, int] | tuple[TvImage, int]:
-        """Get an image and its corresponding mask together index.
+    def get_raw(self, index: int) -> DeepGlobeRoadExtractionOutput:
+        """Get an image and its corresponding mask together with the index.
 
-        If the split is not 'train', the mask will be None and only the image and index will be returned.
+        If the split is not 'train', the mask will be None.
         """
         image_path = self.samples[index]
         mask_path = image_path.parent / f"{image_path.stem[:-3]}mask.png"
@@ -106,14 +119,4 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path) if mask_path.exists() else None
 
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        if mask is None:
-            return image, index
-
-        return image, mask, index
+        return DeepGlobeRoadExtractionOutput(image=image, mask=mask, index=index)
