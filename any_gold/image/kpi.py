@@ -99,13 +99,18 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, int]:
-        """Get an image and its corresponding mask together with the disease name and the index."""
+    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, int]:
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
 
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path)
+
+        return image, mask, disease, index
+
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, int]:
+        """Get an image and its corresponding mask together with the disease name and the index."""
+        image, mask, disease, index = self.get_raw(index)
 
         if self.transform:
             image = self.transform(image)

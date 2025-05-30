@@ -120,8 +120,8 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
-        """Get an image and its corresponding mask together with the plant species, disease and index."""
+    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
+        """Get the image and its corresponding mask together with the plant species, disease and index."""
         image_path, plant, disease = self.samples[index]
         mask_path = (
             image_path.parent.parent.parent
@@ -130,6 +130,12 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
 
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path)
+
+        return image, mask, plant, disease, index
+
+    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
+        """Get the transformed image and its corresponding mask together with the plant species, disease and index."""
+        image, mask, plant, disease, index = self.get_raw(index)
 
         if self.transform:
             image = self.transform(image)

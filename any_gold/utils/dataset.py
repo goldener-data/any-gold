@@ -1,5 +1,6 @@
+from abc import abstractmethod
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Any
 
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
@@ -22,6 +23,10 @@ class AnyDataset(Dataset):
 
         self.root = Path(root)
         self.override = override
+
+    @abstractmethod
+    def get_raw(self, index: int) -> tuple[Any, ...]:
+        """Get the raw data for the given index."""
 
 
 class AnyVisionDataset(VisionDataset, AnyDataset):
