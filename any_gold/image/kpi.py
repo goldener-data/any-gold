@@ -1,14 +1,20 @@
 from pathlib import Path
 from typing import Callable
 
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.synapse import SynapseZipBase
 
 
-class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
+class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
+    disease: str
+
+
+class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
@@ -58,7 +64,7 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -99,24 +105,13 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def get_raw(self, index: int) -> tuple[TvImage, TvMask, str, int]:
+    def get_raw(self, index: int) -> KPITask1PatchLevelOutput:
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
 
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path)
 
-        return image, mask, disease, index
-
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, int]:
-        """Get an image and its corresponding mask together with the disease name and the index."""
-        image, mask, disease, index = self.get_raw(index)
-
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, disease, index
+        return KPITask1PatchLevelOutput(
+            image=image, mask=mask, disease=disease, index=index
+        )
