@@ -128,11 +128,15 @@ name = "any-gold"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "datasets" },
+    { name = "kagglehub" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pathlib" },
+    { name = "synapseclient" },
     { name = "torch" },
     { name = "torchvision" },
+    { name = "zenodo-client" },
 ]
 
 [package.optional-dependencies]
@@ -143,23 +147,11 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
-huggingface = [
-    { name = "datasets" },
-]
-kaggle = [
-    { name = "kagglehub" },
-]
-synapse = [
-    { name = "synapseclient" },
-]
-zenodo = [
-    { name = "zenodo-client" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "datasets", marker = "extra == 'huggingface'" },
-    { name = "kagglehub", marker = "extra == 'kaggle'" },
+    { name = "datasets" },
+    { name = "kagglehub" },
     { name = "mypy", marker = "extra == 'dev'" },
     { name = "numpy" },
     { name = "pandas" },
@@ -168,12 +160,12 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "synapseclient", marker = "extra == 'synapse'" },
+    { name = "synapseclient" },
     { name = "torch" },
     { name = "torchvision" },
-    { name = "zenodo-client", marker = "extra == 'zenodo'" },
+    { name = "zenodo-client" },
 ]
-provides-extras = ["dev", "huggingface", "kaggle", "zenodo", "synapse"]
+provides-extras = ["dev"]
 
 [[package]]
 name = "anyio"
