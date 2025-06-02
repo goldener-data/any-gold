@@ -149,5 +149,9 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
         mask = load_torchvision_mask(mask_path)
 
         return PlantSegOutput(
-            image=image, mask=mask, plant=plant, disease=disease, index=index
+            index=index,
+            image=image,
+            mask=mask,
+            plant=plant,
+            disease=disease,
         )

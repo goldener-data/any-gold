@@ -1,10 +1,12 @@
 import pytest
 from pathlib import Path
 
+from torch.utils.data import RandomSampler, DataLoader
+
 import synapseclient
 import synapseutils
 
-from any_gold.image.kpi import KPITask1PatchLevel
+from any_gold import KPITask1PatchLevel
 from tests.conftest import TEST_DATASET_LOADING, SYNAPSE_API_TOKEN
 
 
@@ -36,11 +38,28 @@ class TestKPITask1PatchLevel:
 
         assert len(dataset) == 5331, "Dataset length is not as expected"
 
-        image, mask, target, index = dataset[0]
-        assert index == 0, "Index is not as expected"
-        assert image.shape == (1, 3, 2048, 2048), "Image shape is not as expected"
-        assert mask.shape == (1, 1, 2048, 2048), "Mask shape is not as expected"
+        output = dataset[0]
+        assert output["index"] == 0, "Index is not as expected"
+        assert output["image"].shape == (
+            3,
+            2048,
+            2048,
+        ), "Image shape is not as expected"
+        assert output["mask"].shape == (1, 2048, 2048), "Mask shape is not as expected"
         assert dataset.get_image_path(0) == Path(
             "/storage/ml/kpi_task1/train/train/normal/normal_F3/img/normal_F3_585_13312_22528_img.jpg"
         ), "Image path is not as expected"
-        assert target == "normal"
+        assert output["disease"] == "normal"
+
+        sampler = RandomSampler(dataset, replacement=False, num_samples=5)
+        dataloader = DataLoader(
+            dataset,
+            batch_size=5,
+            sampler=sampler,
+            num_workers=0,
+        )
+        for batch in dataloader:
+            (
+                batch["image"].shape == (5, 3, 1024, 1024),
+                "Batch image shape is not as expected",
+            )
