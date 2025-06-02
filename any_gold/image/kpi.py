@@ -12,6 +12,11 @@ from any_gold.utils.synapse import SynapseZipBase
 
 
 class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
+    """Output class for KPI Task 1 Patch Level dataset.
+
+    It extends the AnyVisionSegmentationOutput class to include disease information.
+    """
+
     def __init__(self, *, index: int, image: TvImage, mask: TvMask, disease: str):
         super().__init__(index=index, image=image, mask=mask, disease=disease)
 

@@ -8,6 +8,13 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 
 class AnyOutput(OrderedDict):
+    """Base class for any output from a dataset.
+
+    It specifies the output format for any dataset. All any gold dataset is expected to return an instance of this class.
+    At least the index of the data is required, but it can also contain
+    other information such as image, annotation, etc...
+    """
+
     def __init__(self, *, index: int, **kwargs: Any):
         super().__init__(index=index, **kwargs)
 
@@ -44,6 +51,12 @@ class AnyDataset(Dataset):
 
 
 class AnyVisionSegmentationOutput(AnyOutput):
+    """Base class for any vision segmentation output.
+
+    It specifies the output format for any vision segmentation dataset.
+    It extends the AnyOutput class to include image and mask attributes.
+    """
+
     def __init__(self, *, index: int, image: TvImage, mask: TvMask, **kwargs: Any):
         super().__init__(index=index, image=image, mask=mask, **kwargs)
 

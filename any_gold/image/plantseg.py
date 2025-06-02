@@ -13,6 +13,11 @@ from any_gold.utils.zenodo import ZenodoZipBase
 
 
 class PlantSegOutput(AnyVisionSegmentationOutput):
+    """Output class for PlantSeg dataset.
+
+    It extends the AnyVisionSegmentationOutput class to include plant species and disease information.
+    """
+
     def __init__(
         self, *, index: int, image: TvImage, mask: TvMask, plant: str, disease: str
     ):

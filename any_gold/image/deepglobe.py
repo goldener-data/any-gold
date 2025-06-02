@@ -13,6 +13,11 @@ from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 
 
 class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
+    """Output class for DeepGlobe Road Extraction dataset.
+
+    It does not include more than the index, image, and mask already included in AnyVisionSegmentationOutput.
+    """
+
     def __init__(self, *, index: int, image: TvImage, mask: TvMask):
         super().__init__(index=index, image=image, mask=mask)
 
