@@ -1,14 +1,22 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Callable, OrderedDict
+from typing import Callable, OrderedDict, Any
 
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
-from torchvision.tv_tensors import Image as TvImage
+from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 
 class AnyOutput(OrderedDict):
-    index: int
+    """Base class for any output from a dataset.
+
+    It specifies the output format for any dataset. All any gold dataset is expected to return an instance of this class.
+    At least the index of the data is required, but it can also contain
+    other information such as image, annotation, etc...
+    """
+
+    def __init__(self, *, index: int, **kwargs: Any):
+        super().__init__(index=index, **kwargs)
 
 
 class AnyDataset(Dataset):
@@ -43,8 +51,14 @@ class AnyDataset(Dataset):
 
 
 class AnyVisionSegmentationOutput(AnyOutput):
-    image: TvImage
-    mask: TvImage
+    """Base class for any vision segmentation output.
+
+    It specifies the output format for any vision segmentation dataset.
+    It extends the AnyOutput class to include image and mask attributes.
+    """
+
+    def __init__(self, *, index: int, image: TvImage, mask: TvMask, **kwargs: Any):
+        super().__init__(index=index, image=image, mask=mask, **kwargs)
 
 
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
@@ -85,15 +99,15 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
         """Get the transformed image and its corresponding information."""
         output = self.get_raw(index)
 
-        image = output.image
-        mask = output.mask
+        image = output["image"]
+        mask = output["mask"]
 
         if self.transform:
-            output.image = self.transform(image)
+            output["image"] = self.transform(image)
         if self.target_transform:
-            output.mask = self.target_transform(mask)
+            output["mask"] = self.target_transform(mask)
         if self.transforms:
-            output.image, output.mask = self.transforms(image, mask)
+            output["image"], output["mask"] = self.transforms(image, mask)
 
         return output
 
@@ -110,6 +124,9 @@ class AnyRawDataset:
         dataset: AnyDataset,
     ) -> None:
         self._dataset = dataset
+
+    def __iter__(self):
+        return iter(self._dataset)
 
     def __get_item__(self, index: int) -> AnyOutput:
         """Get the raw data of the dataset for the given index."""
