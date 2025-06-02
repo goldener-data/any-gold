@@ -125,10 +125,7 @@ class AnyRawDataset:
     ) -> None:
         self._dataset = dataset
 
-    def __iter__(self):
-        return iter(self._dataset)
-
-    def __get_item__(self, index: int) -> AnyOutput:
+    def __getitem__(self, index: int) -> AnyOutput:
         """Get the raw data of the dataset for the given index."""
         return self._dataset.get_raw(index)
 
