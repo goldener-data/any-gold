@@ -64,6 +64,8 @@ class AnyVisionSegmentationOutput(AnyOutput):
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
     """Base class for any vision dataset.
 
+    The image and mask are expected to be in the torchvision format with a shape C, H, W for images and masks.
+
     Attributes:
         root: The root directory where the dataset is stored.
         transform: A transform to apply to the images.

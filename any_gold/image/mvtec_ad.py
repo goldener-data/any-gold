@@ -104,13 +104,13 @@ class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
         """
         sample = self.samples[index]
 
-        image = TvImage(sample["image_path"].unsqueeze(0))
+        image = TvImage(sample["image_path"])
 
         mask = TvMask(
             sample["mask_path"]
             if sample["mask_path"] is not None
             else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
-        ).unsqueeze(0)
+        )
 
         return MVTecADOutput(
             image=image,
