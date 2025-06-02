@@ -12,8 +12,18 @@ from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
 class MVTecADOutput(AnyVisionSegmentationOutput):
-    defect: str
-    label: torch.Tensor
+    def __init__(
+        self,
+        *,
+        index: int,
+        image: TvImage,
+        mask: TvMask,
+        defect: str,
+        label: torch.Tensor,
+    ):
+        super().__init__(
+            index=index, image=image, mask=mask, defect=defect, label=label
+        )
 
 
 class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
