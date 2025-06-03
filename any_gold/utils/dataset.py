@@ -1,13 +1,13 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Callable, OrderedDict, Any
+from typing import Callable, TypedDict
 
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 
-class AnyOutput(OrderedDict):
+class AnyOutput(TypedDict):
     """Base class for any output from a dataset.
 
     It specifies the output format for any dataset. All any gold dataset is expected to return an instance of this class.
@@ -15,8 +15,7 @@ class AnyOutput(OrderedDict):
     other information such as image, annotation, etc...
     """
 
-    def __init__(self, *, index: int, **kwargs: Any):
-        super().__init__(index=index, **kwargs)
+    index: int
 
 
 class AnyDataset(Dataset):
@@ -57,8 +56,9 @@ class AnyVisionSegmentationOutput(AnyOutput):
     It extends the AnyOutput class to include image and mask attributes.
     """
 
-    def __init__(self, *, index: int, image: TvImage, mask: TvMask, **kwargs: Any):
-        super().__init__(index=index, image=image, mask=mask, **kwargs)
+    image: TvImage
+    mask: TvMask | None
+    label: str
 
 
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):

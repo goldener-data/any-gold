@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Callable
 
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
@@ -14,11 +13,10 @@ from any_gold.utils.synapse import SynapseZipBase
 class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
     """Output class for KPI Task 1 Patch Level dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include disease information.
+    The label is the name of the disease.
     """
 
-    def __init__(self, *, index: int, image: TvImage, mask: TvMask, disease: str):
-        super().__init__(index=index, image=image, mask=mask, disease=disease)
+    pass
 
 
 class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
@@ -120,5 +118,5 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
         mask = load_torchvision_mask(mask_path)
 
         return KPITask1PatchLevelOutput(
-            image=image, mask=mask, disease=disease, index=index
+            image=image, mask=mask, label=disease, index=index
         )

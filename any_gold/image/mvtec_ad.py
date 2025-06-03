@@ -14,22 +14,13 @@ from any_gold.utils.hugging_face import HuggingFaceDataset
 class MVTecADOutput(AnyVisionSegmentationOutput):
     """Output class for MVTec Anomaly Detection dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include label (either `good` or a defect type) and
+    It extends the AnyVisionSegmentationOutput class to include
     target (torch tensor indicating if the label is an anomaly or not).
+
+    The label is the type of defect (`good` in absence of defect).
     """
 
-    def __init__(
-        self,
-        *,
-        index: int,
-        image: TvImage,
-        mask: TvMask,
-        label: str,
-        target: torch.Tensor,
-    ):
-        super().__init__(
-            index=index, image=image, mask=mask, label=label, target=target
-        )
+    target: torch.Tensor
 
 
 class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):

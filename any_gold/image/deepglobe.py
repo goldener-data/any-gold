@@ -2,7 +2,6 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
@@ -15,11 +14,10 @@ from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
     """Output class for DeepGlobe Road Extraction dataset.
 
-    It does not include more than the index, image, and mask already included in AnyVisionSegmentationOutput.
+    The label will always be `road`.
     """
 
-    def __init__(self, *, index: int, image: TvImage, mask: TvMask):
-        super().__init__(index=index, image=image, mask=mask)
+    pass
 
 
 class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
@@ -117,4 +115,6 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
         image = load_torchvision_image(image_path)
         mask = load_torchvision_mask(mask_path) if mask_path.exists() else None
 
-        return DeepGlobeRoadExtractionOutput(image=image, mask=mask, index=index)
+        return DeepGlobeRoadExtractionOutput(
+            image=image, mask=mask, index=index, label="road"
+        )
