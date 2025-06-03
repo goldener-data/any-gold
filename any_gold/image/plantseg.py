@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Callable
 
 import pandas as pd
-from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
     AnyVisionSegmentationOutput,
@@ -15,15 +14,11 @@ from any_gold.utils.zenodo import ZenodoZipBase
 class PlantSegOutput(AnyVisionSegmentationOutput):
     """Output class for PlantSeg dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include plant species and disease information.
+    It extends the AnyVisionSegmentationOutput class to include plant species.
+    The label will be the disease on the plant.
     """
 
-    def __init__(
-        self, *, index: int, image: TvImage, mask: TvMask, plant: str, disease: str
-    ):
-        super().__init__(
-            index=index, image=image, mask=mask, plant=plant, disease=disease
-        )
+    plant: str
 
 
 class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
@@ -153,5 +148,5 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
             image=image,
             mask=mask,
             plant=plant,
-            disease=disease,
+            label=disease,
         )
