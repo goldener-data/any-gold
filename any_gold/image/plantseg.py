@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable
 
+import PIL
 import pandas as pd
 import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
@@ -141,9 +142,9 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
             / f"annotations/{self.split}/{image_path.stem}.png"
         )
 
-        image = TvImage(image_path)
-        mask = TvMask(
-            mask_path
+        image = TvImage(PIL.Image.open(image_path).convert("RGB"), dtype=torch.uint8)
+        mask = (
+            TvMask(PIL.Image.open(mask_path).convert("L"), dtype=torch.uint8)
             if mask_path is not None
             else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
         )
