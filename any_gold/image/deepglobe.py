@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
-import PIL
+from PIL import Image
 import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
@@ -114,9 +114,9 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
         image_path = self.samples[index]
         mask_path = image_path.parent / f"{image_path.stem[:-3]}mask.png"
 
-        image = TvImage(PIL.Image.open(image_path).convert("RGB"), dtype=torch.uint8)
+        image = TvImage(Image.open(image_path).convert("RGB"), dtype=torch.uint8)
         mask = (
-            TvMask(PIL.Image.open(mask_path).convert("L"), dtype=torch.uint8)
+            TvMask(Image.open(mask_path).convert("L"), dtype=torch.uint8)
             if mask_path is not None
             else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
         )
