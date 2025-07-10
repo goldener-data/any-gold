@@ -1,12 +1,13 @@
 from pathlib import Path
 from typing import Callable
 
+import torch
+from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
     AnyVisionSegmentationOutput,
 )
-from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.synapse import SynapseZipBase
 
 
@@ -114,8 +115,12 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
 
-        image = load_torchvision_image(image_path)
-        mask = load_torchvision_mask(mask_path)
+        image = TvImage(image_path)
+        mask = TvMask(
+            mask_path
+            if mask_path is not None
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
+        )
 
         return KPITask1PatchLevelOutput(
             image=image, mask=mask, label=disease, index=index

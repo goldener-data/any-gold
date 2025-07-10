@@ -2,12 +2,13 @@ from pathlib import Path
 from typing import Callable
 
 import pandas as pd
+import torch
+from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
     AnyVisionSegmentationOutput,
     AnyVisionSegmentationDataset,
 )
-from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
@@ -140,8 +141,12 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
             / f"annotations/{self.split}/{image_path.stem}.png"
         )
 
-        image = load_torchvision_image(image_path)
-        mask = load_torchvision_mask(mask_path)
+        image = TvImage(image_path)
+        mask = TvMask(
+            mask_path
+            if mask_path is not None
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
+        )
 
         return PlantSegOutput(
             index=index,
