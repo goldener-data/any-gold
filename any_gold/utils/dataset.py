@@ -57,7 +57,7 @@ class AnyVisionSegmentationOutput(AnyOutput):
     """
 
     image: TvImage
-    mask: TvMask | None
+    mask: TvMask
     label: str
 
 
