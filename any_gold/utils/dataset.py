@@ -1,10 +1,16 @@
 from abc import abstractmethod
+from collections import defaultdict
 from pathlib import Path
-from typing import Callable, TypedDict
+from typing import Callable, TypedDict, Any
 
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import VisionDataset
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
+
+from any_gold.tools.image.connected_component import (
+    extract_connected_components_from_binary_mask,
+)
+from any_gold.tools.image.stats import vision_segmentation_stats
 
 
 class AnyOutput(TypedDict):
@@ -47,6 +53,10 @@ class AnyDataset(Dataset):
     @abstractmethod
     def __len__(self) -> int:
         """Get the length of the dataset."""
+
+    @abstractmethod
+    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        """Get a description of the dataset, including the number of samples and other relevant information."""
 
 
 class AnyVisionSegmentationOutput(AnyOutput):
@@ -96,6 +106,65 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
     @abstractmethod
     def get_raw(self, index: int) -> AnyVisionSegmentationOutput:
         """Get the raw data for the given index."""
+
+    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        dataloader = DataLoader(
+            self,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            collate_fn=lambda x: x,  # some dataset might contain different sizes of images and masks
+        )
+        global_shape_count: dict[tuple[int, ...], int] = defaultdict(int)
+        global_areas = []
+        global_object_count = []
+        shape_count_per_label: dict[str, dict[tuple[int, ...], int]] = defaultdict(
+            lambda: defaultdict(int)
+        )
+        areas_per_label = defaultdict(list)
+        object_count_per_label = defaultdict(list)
+
+        for batch in dataloader:
+            for sample in batch:
+                label = sample["label"]
+
+                shape = tuple(sample["image"].shape)
+                global_shape_count[shape] += 1
+                shape_count_per_label[label][shape] += 1
+
+                connected_components = extract_connected_components_from_binary_mask(
+                    sample["mask"].permute(1, 2, 0).numpy(), min_area=1
+                )
+
+                if not connected_components:
+                    continue
+
+                areas = [cc.area for cc in connected_components]
+                global_areas.extend(areas)
+                areas_per_label[label].extend(areas)
+
+                object_count = len(connected_components)
+                global_object_count.append(object_count)
+                object_count_per_label[label].append(object_count)
+
+        global_description = vision_segmentation_stats(
+            shape_counts=global_shape_count,
+            areas=global_areas,
+            object_counts=global_object_count,
+        )
+        label_description = {
+            label: vision_segmentation_stats(
+                shape_counts=shape_count_per_label[label],
+                areas=areas,
+                object_counts=object_count_per_label[label],
+            )
+            for label, areas in areas_per_label.items()
+        }
+
+        return (
+            {"name": self.__class__.__name__, "sample count": len(self)}
+            | global_description
+            | label_description
+        )
 
     def __getitem__(self, index: int) -> AnyVisionSegmentationOutput:
         """Get the transformed image and its corresponding information."""
