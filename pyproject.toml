@@ -29,6 +29,11 @@ dev = [
   "ruff",
   "mypy",
   "pandas-stubs",
+  "types-tqdm",
+]
+
+tools = [
+  "fiftyone",
 ]
 
 [project.urls]
