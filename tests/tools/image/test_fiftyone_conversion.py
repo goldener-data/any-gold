@@ -33,9 +33,10 @@ class TestBuildFoDetectionsFromConnectedComponents:
         with pytest.raises(ValueError):
             build_fo_detections_from_connected_components([], "label", 0, tmp_path)
 
-    def test_single_component(self, tmp_path: Path, mask: np.ndarray) -> None:
+    def test_single_component(self, tmp_path: Path, mask: TvMask) -> None:
         cc = ConnectedComponent(
-            mask=mask, bounding_box=np.array([0, 0, 10, 10], dtype=np.uint32)
+            mask=mask.permute(1, 2, 0).numpy(),
+            bounding_box=np.array([0, 0, 10, 10], dtype=np.uint32),
         )
         detections = build_fo_detections_from_connected_components(
             [cc], "cat", 1, tmp_path
