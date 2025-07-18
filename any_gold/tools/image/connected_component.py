@@ -57,7 +57,7 @@ def extract_connected_components_from_binary_mask(
                         ),
                         dtype=np.uint32,
                     ),
-                    area=cc_stats[cv2.CC_STAT_AREA],
+                    area=cc_stats[cv2.CC_STAT_AREA].item(),
                 )
             )
 

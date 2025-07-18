@@ -128,7 +128,7 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
             self,
             batch_size=batch_size,
             num_workers=num_workers,
-            collate_fn=lambda x: x,  # some dataset might contain different sizes of images and masks
+            collate_fn=lambda x: x,  # some datasets might contain different sizes of images and masks
         )
         global_shape_count: dict[tuple[int, ...], int] = defaultdict(int)
         global_areas = []
