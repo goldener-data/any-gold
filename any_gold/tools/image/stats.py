@@ -38,17 +38,17 @@ def vision_segmentation_stats(
         "areas": None
         if not areas
         else {
-            "min": np.min(areas),
-            "max": np.max(areas),
-            "mean": np.mean(areas),
-            "total": np.sum(areas),
+            "min": np.min(areas).item(),
+            "max": np.max(areas).item(),
+            "mean": np.mean(areas).item(),
+            "total": np.sum(areas).item(),
         },
         "object count": None
         if not object_counts
         else {
-            "min": np.min(object_counts),
-            "max": np.max(object_counts),
-            "mean": np.mean(object_counts),
-            "total": np.sum(object_counts),
+            "min": np.min(object_counts).item(),
+            "max": np.max(object_counts).item(),
+            "mean": np.mean(object_counts).item(),
+            "total": np.sum(object_counts).item(),
         },
     }

@@ -6,6 +6,7 @@ from typing import Callable, TypedDict, Any
 from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import VisionDataset
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
+from tqdm import tqdm
 
 from any_gold.tools.image.connected_component import (
     extract_connected_components_from_binary_mask,
@@ -108,6 +109,21 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
         """Get the raw data for the given index."""
 
     def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        """Make a description of the dataset.
+
+        Args:
+            batch_size: The batch size to use for the DataLoader.
+            num_workers: The number of workers to use for the DataLoader.
+
+        Returns:
+            A dictionary containing the description of the dataset, including:
+            - name: The name of the dataset class.
+            - sample count: The number of samples in the dataset.
+            - shapes: A dictionary with the shape as key and the corresponding number of images in the dataset.
+            - areas: A dictionary with min, max, mean, and total area of connected components.
+            - object count: A dictionary with min, max, mean, and total object count.
+            - per label statistics if applicable.
+        """
         dataloader = DataLoader(
             self,
             batch_size=batch_size,
@@ -123,7 +139,11 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
         areas_per_label = defaultdict(list)
         object_count_per_label = defaultdict(list)
 
-        for batch in dataloader:
+        for batch in tqdm(
+            dataloader,
+            desc=f"Describing dataset {self.__class__.__name__}",
+            unit="batch",
+        ):
             for sample in batch:
                 label = sample["label"]
 
