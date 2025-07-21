@@ -100,7 +100,7 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
 
         self.samples: list[tuple[Path, str]] = [
             (image_path, class_dir.name)
-            for class_dir in (root / self._ENTITIES[self.split]["name"]).iterdir()
+            for class_dir in root.iterdir()
             for patch_dir in class_dir.iterdir()
             for image_path in (patch_dir / "img").glob("*.jpg")
         ]

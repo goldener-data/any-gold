@@ -49,6 +49,11 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
     """
 
     _HANDLE = "balraj98/deepglobe-road-extraction-dataset/versions/2"
+    _SPLITS = {
+        "train": "train",
+        "val": "valid",
+        "test": "test",
+    }
 
     def __init__(
         self,
@@ -59,6 +64,11 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
+        if split not in self._SPLITS:
+            raise ValueError(f"Split must be one of {self._SPLITS}, but got {split}.")
+
+        self.split = split
+
         AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
@@ -66,13 +76,6 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
             target_transform=target_transform,
             transforms=transforms,
         )
-
-        if split not in ("train", "val", "test"):
-            raise ValueError(
-                f"Split {split} is not available. Available splits are ['train', 'val', 'test']."
-            )
-        self.split = split
-
         KaggleDataset.__init__(
             self,
             root=root,
@@ -80,24 +83,29 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
             override=override,
         )
 
-    def _move_data_to_root(self, dataset_directory: Path) -> None:
+    def _move_data_to_root(self, kaggle_cache: Path) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
-        for file in dataset_directory.rglob("*"):
-            if file.is_file():
-                relative_path = file.relative_to(dataset_directory)
-                target_path = self.root / relative_path
-                if target_path.parent.stem == "valid":
-                    target_path = target_path.parent.parent / f"val/{target_path.name}"
-                target_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(file), str(target_path))
+
+        target = self.root / self.split
+        source = kaggle_cache / self._SPLITS[self.split]
+
+        if target.exists():
+            shutil.rmtree(target)
+
+        if not source.exists():
+            raise FileNotFoundError(
+                f"Source directory {source} does not exist. "
+                f"Please use override=True to download the dataset again."
+            )
+
+        shutil.move(source, target)
 
     def _setup(self) -> None:
-        if self.override or not self.root.exists():
+        root = self.root / self.split
+        if self.override or not root.exists():
             self.download()
 
-        self.samples = [
-            image_path for image_path in (self.root / self.split).glob("*_sat.jpg")
-        ]
+        self.samples = [image_path for image_path in root.glob("*_sat.jpg")]
 
     def __len__(self) -> int:
         return len(self.samples)
