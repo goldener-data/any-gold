@@ -71,7 +71,6 @@ class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
 
         HuggingFaceDataset.__init__(
             self,
-            root=root,
             path=self._HUGGINGFACE_NAME,
             hf_split=f"{self.category}.{self.split}",
             override=override,

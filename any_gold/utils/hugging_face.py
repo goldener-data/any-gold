@@ -1,8 +1,8 @@
 import os
 from functools import partial
-from pathlib import Path
 
 import datasets
+import huggingface_hub.utils
 from datasets import load_dataset, DownloadConfig
 from datasets.exceptions import DatasetNotFoundError
 from datasets import Dataset as HFDataset
@@ -32,13 +32,12 @@ class HuggingFaceDataset(AnyDataset):
 
     def __init__(
         self,
-        root: str | Path,
         path: str,
         hf_split: str | None = None,
         override: bool = False,
     ) -> None:
         super().__init__(
-            root=root,
+            root=huggingface_hub.constants.HUGGINGFACE_HUB_CACHE,
             override=override,
         )
 
