@@ -1,15 +1,29 @@
 from pathlib import Path
 from typing import Callable
 
+from PIL import Image
 import pandas as pd
+import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
-from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationOutput,
+    AnyVisionSegmentationDataset,
+)
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
-class PlantSeg(AnyVisionDataset, ZenodoZipBase):
+class PlantSegOutput(AnyVisionSegmentationOutput):
+    """Output class for PlantSeg dataset.
+
+    It extends the AnyVisionSegmentationOutput class to include plant species.
+    The label will be the disease on the plant.
+    """
+
+    plant: str
+
+
+class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in
@@ -63,7 +77,7 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -120,22 +134,25 @@ class PlantSeg(AnyVisionDataset, ZenodoZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, str, int]:
-        """Get an image and its corresponding mask together with the plant species, disease and index."""
+    def get_raw(self, index: int) -> PlantSegOutput:
+        """Get the image and its corresponding mask together with the plant species, disease and index."""
         image_path, plant, disease = self.samples[index]
         mask_path = (
             image_path.parent.parent.parent
             / f"annotations/{self.split}/{image_path.stem}.png"
         )
 
-        image = load_torchvision_image(image_path)
-        mask = load_torchvision_mask(mask_path)
+        image = TvImage(Image.open(image_path).convert("RGB"), dtype=torch.uint8)
+        mask = (
+            TvMask(Image.open(mask_path).convert("L"), dtype=torch.uint8)
+            if mask_path is not None
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
+        )
 
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, plant, disease, index
+        return PlantSegOutput(
+            index=index,
+            image=image,
+            mask=mask,
+            plant=plant,
+            label=disease,
+        )

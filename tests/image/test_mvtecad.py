@@ -1,10 +1,13 @@
 from pathlib import Path
 
 import pytest
-import torch
+
 from huggingface_hub import HfApi
 
-from any_gold.image.mvtec_ad import MVTecADDataset
+import torch
+from torch.utils.data import RandomSampler, DataLoader
+
+from any_gold import MVTecADDataset
 from tests.conftest import TEST_DATASET_LOADING
 
 
@@ -25,8 +28,25 @@ class TestMVTecADDataset:
 
         assert len(dataset) == 240, "Dataset length is not as expected"
 
-        image, mask, defect, target, index = dataset[0]
-        assert index == 0, "Index is not as expected"
-        assert image.shape == (1, 1, 1024, 1024), "Image shape is not as expected"
-        assert mask.shape == (1, 1, 1024, 1024), "Mask shape is not as expected"
-        assert target == torch.tensor(0), "Target is not as expected"
+        output = dataset[0]
+        assert output["index"] == 0, "Index is not as expected"
+        assert output["image"].shape == (
+            1,
+            1024,
+            1024,
+        ), "Image shape is not as expected"
+        assert output["mask"].shape == (1, 1024, 1024), "Mask shape is not as expected"
+        assert output["target"] == torch.tensor(0), "Target is not as expected"
+
+        sampler = RandomSampler(dataset, replacement=False, num_samples=5)
+        dataloader = DataLoader(
+            dataset,
+            batch_size=5,
+            sampler=sampler,
+            num_workers=0,
+        )
+        for batch in dataloader:
+            (
+                batch["image"].shape == (5, 1, 1024, 1024),
+                "Batch image shape is not as expected",
+            )

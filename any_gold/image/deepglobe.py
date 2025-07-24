@@ -2,15 +2,28 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
+from PIL import Image
+import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.kaggle import KaggleDataset
-from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
 
 
-class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
-    """PlantSeg Dataset from Zenodo.
+class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
+    """Output class for DeepGlobe Road Extraction dataset.
+
+    The label will always be `road`.
+    """
+
+    pass
+
+
+class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
+    """Deepglobe road extraction dataset from kaggle.
 
     The DeepGlobe road extraction dataset is introduced in
     [DeepGlobe 2018: A Challenge to Parse the Earth Through Satellite Images](https://arxiv.org/pdf/1805.06561)
@@ -36,6 +49,11 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
     """
 
     _HANDLE = "balraj98/deepglobe-road-extraction-dataset/versions/2"
+    _SPLITS = {
+        "train": "train",
+        "val": "valid",
+        "test": "test",
+    }
 
     def __init__(
         self,
@@ -46,20 +64,18 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        if split not in self._SPLITS:
+            raise ValueError(f"Split must be one of {self._SPLITS}, but got {split}.")
+
+        self.split = split
+
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
             target_transform=target_transform,
             transforms=transforms,
         )
-
-        if split not in ("train", "val", "test"):
-            raise ValueError(
-                f"Split {split} is not available. Available splits are ['train', 'val', 'test']."
-            )
-        self.split = split
-
         KaggleDataset.__init__(
             self,
             root=root,
@@ -67,24 +83,29 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
             override=override,
         )
 
-    def _move_data_to_root(self, dataset_directory: Path) -> None:
+    def _move_data_to_root(self, kaggle_cache: Path) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
-        for file in dataset_directory.rglob("*"):
-            if file.is_file():
-                relative_path = file.relative_to(dataset_directory)
-                target_path = self.root / relative_path
-                if target_path.parent.stem == "valid":
-                    target_path = target_path.parent.parent / f"val/{target_path.name}"
-                target_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(str(file), str(target_path))
+
+        target = self.root / self.split
+        source = kaggle_cache / self._SPLITS[self.split]
+
+        if target.exists():
+            shutil.rmtree(target)
+
+        if not source.exists():
+            raise FileNotFoundError(
+                f"Source directory {source} does not exist. "
+                f"Please use override=True to download the dataset again."
+            )
+
+        shutil.move(source, target)
 
     def _setup(self) -> None:
-        if self.override or not self.root.exists():
+        root = self.root / self.split
+        if self.override or not root.exists():
             self.download()
 
-        self.samples = [
-            image_path for image_path in (self.root / self.split).glob("*_sat.jpg")
-        ]
+        self.samples = [image_path for image_path in root.glob("*_sat.jpg")]
 
     def __len__(self) -> int:
         return len(self.samples)
@@ -93,27 +114,21 @@ class DeepGlobeRoadExtraction(AnyVisionDataset, KaggleDataset):
         """Get the path of an image."""
         return self.samples[index]
 
-    def __getitem__(
-        self, index: int
-    ) -> tuple[TvImage, TvMask, int] | tuple[TvImage, int]:
-        """Get an image and its corresponding mask together index.
+    def get_raw(self, index: int) -> DeepGlobeRoadExtractionOutput:
+        """Get an image and its corresponding mask together with the index.
 
-        If the split is not 'train', the mask will be None and only the image and index will be returned.
+        If the split is not 'train', the mask will be None.
         """
         image_path = self.samples[index]
         mask_path = image_path.parent / f"{image_path.stem[:-3]}mask.png"
 
-        image = load_torchvision_image(image_path)
-        mask = load_torchvision_mask(mask_path) if mask_path.exists() else None
+        image = TvImage(Image.open(image_path).convert("RGB"), dtype=torch.uint8)
+        mask = (
+            TvMask(Image.open(mask_path).convert("L"), dtype=torch.uint8)
+            if mask_path is not None
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
+        )
 
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        if mask is None:
-            return image, index
-
-        return image, mask, index
+        return DeepGlobeRoadExtractionOutput(
+            image=image, mask=mask, index=index, label="road"
+        )

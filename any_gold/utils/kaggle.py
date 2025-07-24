@@ -40,7 +40,7 @@ class KaggleDataset(AnyDataset):
         """download the data from Kaggle and initialize the elements of the dataset."""
 
     @abstractmethod
-    def _move_data_to_root(self, dataset_directory: Path) -> None:
+    def _move_data_to_root(self, kaggle_cache: Path) -> None:
         """Make the data available in the root directory.
 
         This method can be used to extract the data from an archive or to reorganise the data after downloading it.
@@ -48,13 +48,8 @@ class KaggleDataset(AnyDataset):
 
     def download(self) -> None:
         """Download the data from kaggle and store the dataset in the root folder."""
-
         logger.info(f"Downloading {self.handle} to kagglehub cache.")
         kaggle_cache = kagglehub.dataset_download(
-            self.handle,
+            self.handle, force_download=self.override
         )
-        if not self.root.exists():
-            self.root.mkdir(parents=True, exist_ok=True)
-
-        logger.info(f"Move {self.handle} from {kaggle_cache} to {self.root}")
         self._move_data_to_root(Path(kaggle_cache))

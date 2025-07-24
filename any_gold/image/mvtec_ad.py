@@ -4,11 +4,26 @@ from typing import Callable
 import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
-class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
+class MVTecADOutput(AnyVisionSegmentationOutput):
+    """Output class for MVTec Anomaly Detection dataset.
+
+    It extends the AnyVisionSegmentationOutput class to include
+    target (torch tensor indicating if the label is an anomaly or not).
+
+    The label is the type of defect (`good` in absence of defect).
+    """
+
+    target: torch.Tensor
+
+
+class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
     """MVTec Anomaly Detection Dataset.
 
     The Mvtec Anomaly Detection dataset is introduced in
@@ -56,12 +71,11 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
 
         HuggingFaceDataset.__init__(
             self,
-            root=root,
             path=self._HUGGINGFACE_NAME,
             hf_split=f"{self.category}.{self.split}",
             override=override,
         )
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -73,23 +87,25 @@ class MVTecADDataset(AnyVisionDataset, HuggingFaceDataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, torch.Tensor, int]:
-        """Get an image and its corresponding mask together with the label, the anomaly detection target and the index."""
+    def get_raw(self, index: int) -> MVTecADOutput:
+        """
+        Get the image and its corresponding mask together with the label,
+        the anomaly detection target and the index.
+        """
         sample = self.samples[index]
 
-        image = TvImage(sample["image_path"].unsqueeze(0))
-
-        mask = TvMask(
-            sample["mask_path"]
+        # image_path and mask_path are already torch tensors
+        image = TvImage(sample["image_path"])
+        mask = (
+            TvMask(sample["mask_path"])
             if sample["mask_path"] is not None
-            else torch.zeros((1, 1, *image.shape[-2:]), dtype=torch.uint8)
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
         )
 
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, sample["defect"], sample["label"], index
+        return MVTecADOutput(
+            image=image,
+            mask=mask,
+            label=sample["defect"],
+            target=sample["label"],
+            index=index,
+        )

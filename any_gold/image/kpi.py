@@ -1,14 +1,27 @@
 from pathlib import Path
 from typing import Callable
 
+from PIL import Image
+import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
-from any_gold.utils.dataset import AnyVisionDataset
-from any_gold.utils.load import load_torchvision_image, load_torchvision_mask
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationDataset,
+    AnyVisionSegmentationOutput,
+)
 from any_gold.utils.synapse import SynapseZipBase
 
 
-class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
+class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
+    """Output class for KPI Task 1 Patch Level dataset.
+
+    The label is the name of the disease.
+    """
+
+    pass
+
+
+class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
@@ -58,7 +71,7 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionDataset.__init__(
+        AnyVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -87,7 +100,7 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
 
         self.samples: list[tuple[Path, str]] = [
             (image_path, class_dir.name)
-            for class_dir in (root / self._ENTITIES[self.split]["name"]).iterdir()
+            for class_dir in root.iterdir()
             for patch_dir in class_dir.iterdir()
             for image_path in (patch_dir / "img").glob("*.jpg")
         ]
@@ -99,19 +112,17 @@ class KPITask1PatchLevel(AnyVisionDataset, SynapseZipBase):
         """Get the path of an image."""
         return self.samples[index][0]
 
-    def __getitem__(self, index: int) -> tuple[TvImage, TvMask, str, int]:
-        """Get an image and its corresponding mask together with the disease name and the index."""
+    def get_raw(self, index: int) -> KPITask1PatchLevelOutput:
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
 
-        image = load_torchvision_image(image_path)
-        mask = load_torchvision_mask(mask_path)
+        image = TvImage(Image.open(image_path).convert("RGB"), dtype=torch.uint8)
+        mask = (
+            TvMask(Image.open(mask_path).convert("L"), dtype=torch.uint8)
+            if mask_path is not None
+            else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
+        )
 
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            mask = self.target_transform(mask)
-        if self.transforms:
-            image, mask = self.transforms(image, mask)
-
-        return image, mask, disease, index
+        return KPITask1PatchLevelOutput(
+            image=image, mask=mask, label=disease, index=index
+        )
