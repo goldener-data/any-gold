@@ -30,7 +30,7 @@ you can focus on experimenting with it.
 - `PlantSeg`: Large-scale in-the-wild dataset for plant disease segmentation ([Paper](https://arxiv.org/abs/2409.04038), [Zenodo](https://zenodo.org/records/14935094))
 - `MVTecADDataset`: Anomaly detection dataset for industrial inspection ([Paper](https://link.springer.com/content/pdf/10.1007/s11263-020-01400-4.pdf), [Hugging Face](https://huggingface.co/datasets/TheoM55/mvtec_all_objects_split))
 - `KPITask1PatchLevel`: A dataset for kidney disease segmentation ([Paper](https://arxiv.org/pdf/2502.07288), [Synapse](https://www.synapse.org/Synapse:syn63688309))
-- `DeepGlobeRoadExtraction`: Road extraction from satellite images ([Paper](https://arxiv.org/pdf/1805.06561), [Kaggle](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset)
+- `DeepGlobeRoadExtraction`: Road extraction from satellite images ([Paper](https://arxiv.org/pdf/1805.06561), [Kaggle](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset))
 
 ## Usage
 
