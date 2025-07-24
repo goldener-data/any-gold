@@ -1,6 +1,9 @@
 name: Publish Python distribution to TestPyPI
 
-on: push
+on:
+  push:
+    branches:
+      - main  # only run on pushes to the main branch
 
 jobs:
   build:

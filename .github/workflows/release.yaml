@@ -2,6 +2,8 @@ name: Publish Python distribution to PyPI
 
 on:
   push:
+    branches:
+      - main  # only run on pushes to the main branch
     tags:
       - 'v*'  # only run on version tags, e.g., v1.0.0
 
