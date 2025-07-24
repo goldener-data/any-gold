@@ -37,6 +37,7 @@ class TestBuildFoDetectionsFromConnectedComponents:
         cc = ConnectedComponent(
             mask=mask.permute(1, 2, 0).numpy(),
             bounding_box=np.array([0, 0, 10, 10], dtype=np.uint32),
+            area=100,
         )
         detections = build_fo_detections_from_connected_components(
             [cc], "cat", 1, tmp_path
