@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test and Linting
 
 on:
   check_run:
