@@ -1,9 +1,8 @@
 name: Publish Python distribution to PyPI
 
 on:
-  push:
-    tags:
-      - 'v*'  # only run on version tags, e.g., v1.0.0
+  release:
+    types: [created]
 
 jobs:
   build:
