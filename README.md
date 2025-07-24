@@ -87,3 +87,11 @@ cd any-gold
 uv sync --all-extras
 source .venv/bin/activate
 ```
+
+### Release Process
+
+To release a new version of the `any-gold` package:
+1. Create a new branch for the release: `git checkout -b release-vX.Y.Z`
+2. Update the version `vX.Y.Z` in `pyproject.toml`
+3. Commit the changes with a message like `release vX.Y.Z`
+4. Add the tag `vX.Y.Z` and push the changes to the main branch

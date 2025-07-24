@@ -1,6 +1,6 @@
 [project]
 name = "any-gold"
-version = "0.1.0"
+version = "0.0.0"
 description = "Custom PyTorch Dataset implementations for publicly available datasets across various modalities"
 readme = "README.md"
 license = "Apache-2.0"
