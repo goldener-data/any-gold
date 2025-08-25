@@ -1,7 +1,7 @@
 import os
 
 
-TEST_DATASET_LOADING = os.environ.get("TEST_DATASET_LOADING", "true").lower() in (
+TEST_DATASET_LOADING = os.environ.get("TEST_DATASET_LOADING", "false").lower() in (
     "1",
     "true",
     "yes",
