@@ -10,7 +10,7 @@ from any_gold.utils.dataset import (
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
-class ISIC2018SegmentationOutput(AnyVisionSegmentationOutput):
+class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
     """
     Output class for ISIC2018 Skin Lesion Segmentation dataset.
     """
