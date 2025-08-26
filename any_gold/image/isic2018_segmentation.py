@@ -20,7 +20,8 @@ class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
 
 class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
     """Skin Lesion Segmentation Dataset.
-
+     This skin lesion dataset is introduced in 
+     [Skin Lesion Analysis Toward Melanoma Detection 2018: A Challenge Hosted by the International Skin Imaging Collaboration (ISIC)](https://arxiv.org/pdf/1902.03368)
     This dataset is part of the ISIC 2018: Skin Lesion Analysis Towards Melanoma Detection challenge,
     specifically for the lesion boundary segmentation task. It contains dermoscopic images and
     corresponding expert-annotated binary masks, enabling training and evaluation of skin lesion
