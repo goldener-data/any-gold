@@ -34,10 +34,6 @@ class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset
     and stored in the specified root directory.
     There are 3 different splits available: 'train', 'val', and 'test'.
 
-    Reference:
-    Noel Codella et al., "Skin Lesion Analysis Toward Melanoma Detection 2018: A Challenge Hosted
-    by the International Skin Imaging Collaboration (ISIC)", 2018, arXiv:1902.03368.
-    https://doi.org/10.48550/arXiv.1902.03368
 
     Attributes:
     root: The root directory where the dataset is stored.
