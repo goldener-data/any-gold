@@ -18,7 +18,7 @@ class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class ISIC2018SegmentationDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
+class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
     """Skin Lesion Segmentation Dataset.
 
     This dataset is part of the ISIC 2018: Skin Lesion Analysis Towards Melanoma Detection challenge,
