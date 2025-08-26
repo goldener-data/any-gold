@@ -1,23 +1,23 @@
 import pytest
 
 from torch.utils.data import RandomSampler, DataLoader
-from any_gold import ISIC2018SegmentationDataset
+from any_gold import ISIC2018SkinLesionDataset
 from tests.conftest import TEST_DATASET_LOADING
 from huggingface_hub import HfApi
 
 
-class TestISIC2018SegmentationDataset:
+class TestISIC2018SkinLesionDataset:
     def test_huggingface_dataset_exists(self):
         api = HfApi()
-        info = api.dataset_info(ISIC2018SegmentationDataset._HUGGINGFACE_NAME)
+        info = api.dataset_info(ISIC2018SkinLesionDataset._HUGGINGFACE_NAME)
         assert info is not None
 
     @pytest.mark.skipif(
         not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True"
     )
     def test_dataset(self):
-        dataset = ISIC2018SegmentationDataset(
-            root="/Users/boudoul/Desktop/dev/datasets/", split="val", override=True
+        dataset = ISIC2018SkinLesionDataset(
+            root="/ml/storage/", split="val", override=True
         )
         assert len(dataset) == 100, "Dataset length is not as expected"
         sampler = RandomSampler(dataset, replacement=False, num_samples=5)

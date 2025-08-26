@@ -19,31 +19,28 @@ class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
 
 
 class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
-    """Skin Lesion Segmentation Dataset.
-     This skin lesion dataset is introduced in 
-     [Skin Lesion Analysis Toward Melanoma Detection 2018: A Challenge Hosted by the International Skin Imaging Collaboration (ISIC)](https://arxiv.org/pdf/1902.03368)
+    """Meloma skin lesion segmentation dataset.
+    This skin lesion dataset is introduced in
+    [Skin Lesion Analysis Toward Melanoma Detection 2018: A Challenge Hosted by the International Skin Imaging Collaboration (ISIC)](https://arxiv.org/pdf/1902.03368)
+
     This dataset is part of the ISIC 2018: Skin Lesion Analysis Towards Melanoma Detection challenge,
-    specifically for the lesion boundary segmentation task. It contains dermoscopic images and
-    corresponding expert-annotated binary masks, enabling training and evaluation of skin lesion
-    segmentation algorithms.
+    specifically for the lesion boundary segmentation task.
 
     The dataset is downloaded from [Hugging Face](https://huggingface.co/datasets/surajbijjahalli/ISIC2018)
     and stored in the specified root directory.
-    
+
     There are 3 different splits available: 'train', 'val', and 'test'.
     and stored in the specified root directory.
-    There are 3 different splits available: 'train', 'val', and 'test'.
-
 
     Attributes:
-    root: The root directory where the dataset is stored.
-    split: The split of the dataset to use. Can be 'train', 'val', or 'test'. Default is 'train'.
-    handle: The name of the dataset on Hugging Face (same as _HUGGINGFACE_NAME).
-    transform: A transform to apply to the images.
-    target_transform: A transform to apply to the masks.
-    transforms: A transform to apply to both images and masks.
-    override: If True, will override the existing dataset in the root directory. Default is False.
-    samples: A list of image identifiers corresponding to the selected split.
+        root: The root directory where the dataset is stored.
+        split: The split of the dataset to use. Can be 'train', 'val', or 'test'. Default is 'train'.
+        path: The path of the dataset on Hugging Face (same as _HUGGINGFACE_NAME).
+        transform: A transform to apply to the images.
+        target_transform: A transform to apply to the masks.
+        transforms: A transform to apply to both images and masks.
+        override: If True, will override the existing dataset in the root directory. Default is False.
+        samples: A list of image identifiers corresponding to the selected split.
     """
 
     _HUGGINGFACE_NAME = "surajbijjahalli/ISIC2018"
@@ -82,7 +79,7 @@ class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset
     def __len__(self) -> int:
         return len(self.samples)
 
-    def get_raw(self, index: int) -> ISIC2018SegmentationOutput:
+    def get_raw(self, index: int) -> ISIC2018SkinLesionOutput:
         """
         Get an image and its corresponding mask together
         """
@@ -93,6 +90,6 @@ class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset
             if sample["label"] is not None
             else torch.zeros((1, *image.shape[-2:]), dtype=torch.uint8)
         )
-        return ISIC2018SegmentationOutput(
+        return ISIC2018SkinLesionOutput(
             image=image, mask=mask, index=index, label="lesion"
         )
