@@ -29,6 +29,9 @@ class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset
 
     The dataset is downloaded from [Hugging Face](https://huggingface.co/datasets/surajbijjahalli/ISIC2018)
     and stored in the specified root directory.
+    
+    There are 3 different splits available: 'train', 'val', and 'test'.
+    and stored in the specified root directory.
     There are 3 different splits available: 'train', 'val', and 'test'.
 
     Reference:
