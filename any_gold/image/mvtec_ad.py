@@ -35,13 +35,13 @@ class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
     The dataset is downloaded from [Hugging Face](https://huggingface.co/datasets/TheoM55/mvtec_all_objects_split)
     and its data will be downloaded and stored in the specified root directory.
 
-    For each category, there are two splits available: train and test.
+    For each category, there are two splits available: `train` and test.
 
     Args:
         root: The root directory where the dataset is stored.
         category: The category of the dataset (e.g., 'bottle', 'cable', 'capsule').
         split: The dataset split to use ('train' or 'test').
-        path: The path of the dataset on Hugging Face.
+        path: The path of the dataset on Hugging Face (same as _HUGGINGFACE_NAME).
         hf_split: it will be category.split.
         transform: A transform to apply to the images.
         target_transform: A transform to apply to the masks.
