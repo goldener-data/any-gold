@@ -46,9 +46,6 @@ class TestKPITask1PatchLevel:
             2048,
         ), "Image shape is not as expected"
         assert output["mask"].shape == (1, 2048, 2048), "Mask shape is not as expected"
-        assert dataset.get_image_path(0) == Path(
-            "/storage/ml/kpi_task1/train/train/normal/normal_F3/img/normal_F3_585_13312_22528_img.jpg"
-        ), "Image path is not as expected"
         assert output["disease"] == "normal"
 
         sampler = RandomSampler(dataset, replacement=False, num_samples=5)

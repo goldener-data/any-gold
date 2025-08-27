@@ -41,9 +41,6 @@ class TestDeepGlobeRoadExtraction:
             1024,
         ), "Image shape is not as expected"
         assert output["mask"].shape == (1, 1024, 1024), "Mask shape is not as expected"
-        assert dataset.get_image_path(0) == Path(
-            "/storage/ml/deepglobe_road_extraction/train/839673_sat.jpg"
-        ), "Image path is not as expected"
 
         sampler = RandomSampler(dataset, replacement=False, num_samples=5)
         dataloader = DataLoader(

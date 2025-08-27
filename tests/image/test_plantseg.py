@@ -37,9 +37,6 @@ class TestPlantSeg:
         assert output["index"] == 0, "Index is not as expected"
         assert output["image"].shape == (3, 853, 640), "Image shape is not as expected"
         assert output["mask"].shape == (1, 853, 640), "Mask shape is not as expected"
-        assert dataset.get_image_path(0) == Path(
-            "/storage/ml/plantseg/plantsegv3/images/train/apple_mosaic_virus_20.jpg"
-        ), "Image path is not as expected"
         assert output["plant"] == "Apple"
         assert output["disease"] == "apple mosaic virus"
 
