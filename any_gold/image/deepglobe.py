@@ -110,10 +110,6 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def get_image_path(self, index: int) -> Path:
-        """Get the path of an image."""
-        return self.samples[index]
-
     def get_raw(self, index: int) -> DeepGlobeRoadExtractionOutput:
         """Get an image and its corresponding mask together with the index.
 

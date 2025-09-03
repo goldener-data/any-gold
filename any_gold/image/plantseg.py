@@ -130,10 +130,6 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def get_image_path(self, index: int) -> Path:
-        """Get the path of an image."""
-        return self.samples[index][0]
-
     def get_raw(self, index: int) -> PlantSegOutput:
         """Get the image and its corresponding mask together with the plant species, disease and index."""
         image_path, plant, disease = self.samples[index]

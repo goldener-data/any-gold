@@ -108,10 +108,6 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def get_image_path(self, index: int) -> Path:
-        """Get the path of an image."""
-        return self.samples[index][0]
-
     def get_raw(self, index: int) -> KPITask1PatchLevelOutput:
         image_path, disease = self.samples[index]
         mask_path = image_path.parent.parent / f"mask/{image_path.stem[:-3]}mask.jpg"
