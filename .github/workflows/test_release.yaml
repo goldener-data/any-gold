@@ -1,9 +1,9 @@
 name: Publish Python distribution to TestPyPI
 
 on:
-  push:
+  pull_request:
     branches:
-      - main  # only run on pushes to the main branch
+      - release-v**  # only run on PRs targeting the main branch
 
 jobs:
   build:
