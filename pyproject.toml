@@ -27,6 +27,7 @@ dependencies = [
   "kagglehub",
   "zenodo-client",
   "synapseclient",
+  "opencv-python",
 ]
 
 [project.optional-dependencies]
