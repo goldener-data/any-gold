@@ -69,7 +69,7 @@ class AnyVisionSegmentationOutput(AnyOutput):
 
     image: TvImage
     mask: TvMask
-    label: str
+    label: str | set[str]
 
 
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):

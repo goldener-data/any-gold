@@ -4,6 +4,7 @@ from .image.deepglobe import DeepGlobeRoadExtraction
 from .image.kpi import KPITask1PatchLevel
 from .image.mvtec_ad import MVTecADDataset
 from .image.isic2018 import ISIC2018SkinLesionDataset
+from .image.pascal_voc import PascalVOC2012Segmentation
 
 __all__ = (
     "AnyVisionSegmentationDataset",
@@ -13,4 +14,5 @@ __all__ = (
     "KPITask1PatchLevel",
     "MVTecADDataset",
     "ISIC2018SkinLesionDataset",
+    "PascalVOC2012Segmentation",
 )

@@ -32,6 +32,8 @@ you can focus on experimenting with it.
 - `KPITask1PatchLevel`: A dataset for kidney disease segmentation ([Paper](https://arxiv.org/pdf/2502.07288), [Synapse](https://www.synapse.org/Synapse:syn63688309))
 - `DeepGlobeRoadExtraction`: Road extraction from satellite images ([Paper](https://arxiv.org/pdf/1805.06561), [Kaggle](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset))
 - `ISIC2018SkinLesionDataset`: A dataset for skin lesion segmentation([Paper](https://doi.org/10.1038/sdata.2018.161), [Hugging Face](https://huggingface.co/datasets/surajbijjahalli/ISIC2018))
+- `PascalVOC2012Segmentation`: A dataset for semantic segmentation ([Website](http://www.pascal-network.org/challenges/VOC/voc2012/workshop/index.html), [Kaggle](https://www.kaggle.com/datasets/gopalbhattrai/pascal-voc-2012-dataset))
+
 ## Usage
 
 ```python

@@ -37,6 +37,7 @@ dev = [
   "ruff",
   "mypy",
   "pandas-stubs",
+  "opencv-stubs",
   "types-tqdm",
 ]
 
