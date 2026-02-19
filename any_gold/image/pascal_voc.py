@@ -1,7 +1,6 @@
-import json
 import shutil
 from pathlib import Path
-from typing import Callable, Any
+from typing import Callable
 
 from PIL import Image
 import torch
@@ -9,22 +8,19 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.tools.image.utils import get_unique_pixel_values
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
+    MultiClassVisionSegmentationDataset,
+    MultiClassVisionSegmentationOutput,
 )
 from any_gold.utils.kaggle import KaggleDataset
 
 
-class PascalVOC2012SegmentationOutput(AnyVisionSegmentationOutput):
-    """Output class for Pascal VOC Segmentation dataset from 2012.
-
-    The label will always be the class in the image.
-    """
+class PascalVOC2012SegmentationOutput(MultiClassVisionSegmentationOutput):
+    """Output class for Pascal VOC Segmentation dataset from 2012."""
 
     pass
 
 
-class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
+class PascalVOC2012Segmentation(MultiClassVisionSegmentationDataset, KaggleDataset):
     """Pascal VOC 2012 segmentation dataset from kaggle.
 
     The Pascal VOC 2012 segmentation dataset is introduced in
@@ -45,16 +41,37 @@ class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
         transform: A transform to apply to the images.
         target_transform: A transform to apply to the masks.
         transforms: A transform to apply to both images and masks.
-        It cannot be set together with transform and target_transform.
+            It cannot be set together with transform and target_transform.
         override: If True, will override the existing dataset in the root directory. Default is False.
         samples: A list of file paths to the images in the specified split.
-        _mask_mapping: A dictionary mapping the unique RGB values in the masks
-        to their corresponding class labels.
     """
 
     _HANDLE = "gopalbhattrai/pascal-voc-2012-dataset/versions/1"
     _SPLITS = ("train", "val")
-    _MASK_MAPPING_FILE = "mask_mapping.json"
+    _LABEL_MAPPING: dict[tuple[int, int, int], str] = {
+        (0, 0, 0): "background",
+        (128, 0, 0): "aeroplane",
+        (0, 128, 0): "bicycle",
+        (128, 128, 0): "bird",
+        (0, 0, 128): "boat",
+        (128, 0, 128): "bottle",
+        (0, 128, 128): "bus",
+        (128, 128, 128): "car",
+        (64, 0, 0): "cat",
+        (192, 0, 0): "chair",
+        (64, 128, 0): "cow",
+        (192, 128, 0): "diningtable",
+        (64, 0, 128): "dog",
+        (192, 0, 128): "horse",
+        (64, 128, 128): "motorbike",
+        (192, 128, 128): "person",
+        (0, 64, 0): "pottedplant",
+        (128, 64, 0): "sheep",
+        (0, 192, 0): "sofa",
+        (128, 192, 0): "train",
+        (0, 64, 128): "tvmonitor",
+        (224, 224, 192): "void",
+    }
 
     def __init__(
         self,
@@ -70,7 +87,7 @@ class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
 
         self.split = split
 
-        AnyVisionSegmentationDataset.__init__(
+        MultiClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -141,34 +158,6 @@ class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
 
         self.samples = [image_path for image_path in root.glob("*.jpg")]
 
-        self._setup_labels_values()
-
-    def _setup_labels_values(self) -> None:
-        mask_mapping_path = self.root / self._MASK_MAPPING_FILE
-        if mask_mapping_path.exists():
-            with open(mask_mapping_path, "r") as f:
-                inverted_label_mapping = json.load(f)
-                self._mask_mapping = {
-                    tuple(value): int(label)
-                    for label, value in inverted_label_mapping.items()
-                }
-        else:
-            unique_values = set()
-            for sample in range(len(self.samples)):
-                image_path = self.samples[sample]
-                mask_path = image_path.parent / f"{image_path.stem}.png"
-                mask = TvMask(Image.open(mask_path).convert("RGB"), dtype=torch.uint8)
-                unique_values.update(get_unique_pixel_values(mask))
-
-            self._mask_mapping = {value: idx for idx, value in enumerate(unique_values)}
-
-            with open(mask_mapping_path, "w") as file:
-                json.dump(
-                    {label: value for value, label in self._mask_mapping.items()},
-                    file,
-                    indent=2,
-                )
-
     def __len__(self) -> int:
         return len(self.samples)
 
@@ -181,22 +170,11 @@ class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
         mask = TvMask(Image.open(mask_path).convert("RGB"), dtype=torch.uint8)
 
         unique_pixel_values = get_unique_pixel_values(mask)
-        mono_mask = torch.zeros_like(mask[0, :, :], dtype=torch.uint8)
         labels = set()
         for pixel_value in unique_pixel_values:
-            new_value = self._mask_mapping[pixel_value]
-            pixel_value_tensor = torch.tensor(pixel_value, dtype=torch.uint8).view(
-                3, 1, 1
-            )
-            pixel_mask = torch.all(mask == pixel_value_tensor, dim=0)
-            mono_mask[pixel_mask] = new_value
-            labels.add(str(new_value))
+            assert len(pixel_value) == 3
+            labels.add(self._LABEL_MAPPING[pixel_value])
 
         return PascalVOC2012SegmentationOutput(
-            image=image, mask=TvMask(mono_mask.unsqueeze(0)), index=index, label=labels
-        )
-
-    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
-        raise NotImplementedError(
-            "The describe method is not implemented for PascalVOC2012Segmentation."
+            image=image, mask=mask, index=index, labels=labels
         )

@@ -7,14 +7,13 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
-    SingleLabelPerImageVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.kaggle import KaggleDataset
 
 
-class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
+class DeepGlobeRoadExtractionOutput(SingleClassVisionSegmentationOutput):
     """Output class for DeepGlobe Road Extraction dataset.
 
     The label will always be `road`.
@@ -23,9 +22,7 @@ class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class DeepGlobeRoadExtraction(
-    SingleLabelPerImageVisionSegmentationDataset, KaggleDataset
-):
+class DeepGlobeRoadExtraction(SingleClassVisionSegmentationDataset, KaggleDataset):
     """Deepglobe road extraction dataset from kaggle.
 
     The DeepGlobe road extraction dataset is introduced in
@@ -72,7 +69,7 @@ class DeepGlobeRoadExtraction(
 
         self.split = split
 
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,

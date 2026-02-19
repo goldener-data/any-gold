@@ -69,7 +69,14 @@ class AnyVisionSegmentationOutput(AnyOutput):
 
     image: TvImage
     mask: TvMask
-    label: str | set[str]
+
+
+class SingleClassVisionSegmentationOutput(AnyVisionSegmentationOutput):
+    label: str
+
+
+class MultiClassVisionSegmentationOutput(AnyVisionSegmentationOutput):
+    labels: set[str]
 
 
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
@@ -129,8 +136,8 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
         return output
 
 
-class SingleLabelPerImageVisionSegmentationDataset(AnyVisionSegmentationDataset):
-    """Base class for any vision dataset for the single label per image segmentation tasks in images.
+class SingleClassVisionSegmentationDataset(AnyVisionSegmentationDataset):
+    """Base class for any vision dataset for the single class per image segmentation tasks in images.
 
     The image and mask are expected to be in the torchvision format with a shape C, H, W for images and masks.
 
@@ -158,6 +165,10 @@ class SingleLabelPerImageVisionSegmentationDataset(AnyVisionSegmentationDataset)
             transforms=transforms,
             override=override,
         )
+
+    @abstractmethod
+    def get_raw(self, index: int) -> SingleClassVisionSegmentationOutput:
+        """Get the raw data for the given index."""
 
     def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
         """Make a description of the dataset.
@@ -236,6 +247,46 @@ class SingleLabelPerImageVisionSegmentationDataset(AnyVisionSegmentationDataset)
             {"name": self.__class__.__name__, "sample count": len(self)}
             | global_description
             | label_description
+        )
+
+
+class MultiClassVisionSegmentationDataset(AnyVisionSegmentationDataset):
+    """Base class for any vision dataset for the multi class per image segmentation tasks in images.
+
+    The image and mask are expected to be in the torchvision format with a shape C, H, W for images and masks.
+
+    Attributes:
+        root: The root directory where the dataset is stored.
+        transform: A transform to apply to the images.
+        target_transform: A transform to apply to the masks.
+        transforms: A transform to apply to both images and masks.
+        It cannot be set together with transform and target_transform.
+        override: If True, will override the existing dataset in the root directory. Default is False.
+    """
+
+    def __init__(
+        self,
+        root: str | Path,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
+        override: bool = False,
+    ) -> None:
+        super().__init__(
+            root=root,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+            override=override,
+        )
+
+    @abstractmethod
+    def get_raw(self, index: int) -> MultiClassVisionSegmentationOutput:
+        """Get the raw data for the given index."""
+
+    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        raise NotImplementedError(
+            "The describe method is not implemented for MultiClassVisionSegmentationDataset. "
         )
 
 

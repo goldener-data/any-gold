@@ -4,14 +4,13 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
-    SingleLabelPerImageVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
-class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
+class ISIC2018SkinLesionOutput(SingleClassVisionSegmentationOutput):
     """
     Output class for ISIC2018 Skin Lesion Segmentation dataset.
 
@@ -22,7 +21,7 @@ class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
 
 
 class ISIC2018SkinLesionDataset(
-    SingleLabelPerImageVisionSegmentationDataset, HuggingFaceDataset
+    SingleClassVisionSegmentationDataset, HuggingFaceDataset
 ):
     """Meloma skin lesion segmentation dataset.
 
@@ -74,7 +73,7 @@ class ISIC2018SkinLesionDataset(
             override=override,
         )
 
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,

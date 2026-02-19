@@ -6,14 +6,13 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
-    SingleLabelPerImageVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.synapse import SynapseZipBase
 
 
-class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
+class KPITask1PatchLevelOutput(SingleClassVisionSegmentationOutput):
     """Output class for KPI Task 1 Patch Level dataset.
 
     The label is the name of the disease.
@@ -22,7 +21,7 @@ class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class KPITask1PatchLevel(SingleLabelPerImageVisionSegmentationDataset, SynapseZipBase):
+class KPITask1PatchLevel(SingleClassVisionSegmentationDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
@@ -72,7 +71,7 @@ class KPITask1PatchLevel(SingleLabelPerImageVisionSegmentationDataset, SynapseZi
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,

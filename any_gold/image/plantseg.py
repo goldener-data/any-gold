@@ -7,24 +7,23 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationOutput,
-    AnyVisionSegmentationDataset,
-    SingleLabelPerImageVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
-class PlantSegOutput(AnyVisionSegmentationOutput):
+class PlantSegOutput(SingleClassVisionSegmentationOutput):
     """Output class for PlantSeg dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include plant species.
+    It extends the SingleClassVisionSegmentationOutput class to include plant species.
     The label will be the disease on the plant.
     """
 
     plant: str
 
 
-class PlantSeg(SingleLabelPerImageVisionSegmentationDataset, ZenodoZipBase):
+class PlantSeg(SingleClassVisionSegmentationDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in
@@ -78,7 +77,7 @@ class PlantSeg(SingleLabelPerImageVisionSegmentationDataset, ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,

@@ -11,7 +11,7 @@ from torchvision.transforms.v2 import Compose, Resize
 from any_gold.image.pascal_voc import (
     PascalVOC2012Segmentation,
 )
-from any_gold.tools.image.utils import gold_segmentation_collate_fn
+from any_gold.tools.image.utils import gold_multiclass_class_segmentation_collate_fn
 from tests.conftest import TEST_DATASET_LOADING
 
 
@@ -45,7 +45,9 @@ class TestPascalVOC2012Segmentation:
             224,
             224,
         ), "Image shape is not as expected"
-        assert output["mask"].shape == (1, 224, 224), "Mask shape is not as expected"
+        assert output["mask"].shape == (3, 224, 224), "Mask shape is not as expected"
+        assert isinstance(output["labels"], set)
+        assert len(output["labels"]) > 0
 
         sampler = RandomSampler(dataset, replacement=False, num_samples=5)
         dataloader = DataLoader(
@@ -53,10 +55,7 @@ class TestPascalVOC2012Segmentation:
             batch_size=5,
             sampler=sampler,
             num_workers=0,
-            collate_fn=gold_segmentation_collate_fn,
+            collate_fn=gold_multiclass_class_segmentation_collate_fn,
         )
         for batch in dataloader:
-            (
-                batch["image"].shape == (5, 3, 224, 224),
-                "Batch image shape is not as expected",
-            )
+            assert batch["image"].shape == (5, 3, 224, 224)
