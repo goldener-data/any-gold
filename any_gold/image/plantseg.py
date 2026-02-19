@@ -105,11 +105,13 @@ class PlantSeg(SingleClassVisionSegmentationDataset, ZenodoZipBase):
             override=override,
         )
 
+        self.samples: list[tuple[Path, str, str]]
+
     def _setup(self) -> None:
         if self.override or not self.root.exists():
             self.download()
 
-        self.samples: list[tuple[Path, str, str]] = []
+        self.samples = []
         metadata = pd.read_csv(
             self.root
             / f"plantsegv{self.version}/{self._VERSIONS[self.version]['metadata']}"

@@ -93,12 +93,14 @@ class KPITask1PatchLevel(SingleClassVisionSegmentationDataset, SynapseZipBase):
             override=override,
         )
 
+        self.samples: list[tuple[Path, str]]
+
     def _setup(self) -> None:
         root = self.root / self._ENTITIES[self.split]["name"]
         if self.override or not root.exists():
             self.download()
 
-        self.samples: list[tuple[Path, str]] = [
+        self.samples = [
             (image_path, class_dir.name)
             for class_dir in root.iterdir()
             for patch_dir in class_dir.iterdir()

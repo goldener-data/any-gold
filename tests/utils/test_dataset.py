@@ -1,12 +1,12 @@
 import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 
 
-class DummyDataset(AnyVisionSegmentationDataset):
+class DummyDataset(SingleClassVisionSegmentationDataset):
     def __init__(self) -> None:
         super().__init__(root="/tmp")
         image = torch.ones((3, 4, 4), dtype=torch.uint8)
@@ -14,13 +14,13 @@ class DummyDataset(AnyVisionSegmentationDataset):
         mask[0, 1:3, 1:3] = 1
 
         self._data = [
-            AnyVisionSegmentationOutput(
+            SingleClassVisionSegmentationOutput(
                 index=0,
                 image=TvImage(image),
                 mask=TvMask(mask),
                 label="dog",
             ),
-            AnyVisionSegmentationOutput(
+            SingleClassVisionSegmentationOutput(
                 index=1,
                 image=TvImage(image),
                 mask=TvMask(mask),
@@ -28,17 +28,17 @@ class DummyDataset(AnyVisionSegmentationDataset):
             ),
         ]
 
-    def get_raw(self, index: int) -> AnyVisionSegmentationOutput:
+    def get_raw(self, index: int) -> SingleClassVisionSegmentationOutput:
         return self._data[index]
 
     def __len__(self) -> int:
         return len(self._data)
 
-    def __get_item__(self, index: int) -> AnyVisionSegmentationOutput:
+    def __get_item__(self, index: int) -> SingleClassVisionSegmentationOutput:
         return self.get_raw(index)
 
 
-class TestAnyVisionSegmentationDatasetDescribe:
+class TestSingleClassVisionSegmentationOutputDescribe:
     def test_describe(self) -> None:
         dataset = DummyDataset()
         description = dataset.describe()

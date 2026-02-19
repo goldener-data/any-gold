@@ -48,7 +48,7 @@ def gold_single_class_segmentation_collate_fn(
     }
 
 
-def gold_multiclass_class_segmentation_collate_fn(
+def gold_multi_class_segmentation_collate_fn(
     batch: list[MultiClassVisionSegmentationOutput],
 ) -> dict[str, torch.Tensor | list[set[str]]]:
     """Collate function for gold multi class vision segmentation dataset.
@@ -68,14 +68,13 @@ def gold_multiclass_class_segmentation_collate_fn(
 
 
 def get_unique_pixel_values(tensor: torch.Tensor) -> set[tuple[int, ...]]:
-    """Get the set of channel values in location of a tensor.
+    """Get the set of channel values present among all locations of a tensor.
 
     Args:
         tensor: A tensor of shape (C, H, W).
 
     Returns:
-        A set of tuples, where each tuple represents the unique channel values
-        at a location in the tensor.
+        A set of channel values present among all locations of a tensor.
     """
     if tensor.ndim != 3:
         raise ValueError(

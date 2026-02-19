@@ -83,6 +83,8 @@ class DeepGlobeRoadExtraction(SingleClassVisionSegmentationDataset, KaggleDatase
             override=override,
         )
 
+        self.samples: list[Path]
+
     def _move_data_to_root(self, kaggle_cache: Path) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
 

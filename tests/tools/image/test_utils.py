@@ -5,7 +5,7 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.tools.image.utils import (
     gold_any_segmentation_collate_fn,
     get_unique_pixel_values,
-    gold_multiclass_class_segmentation_collate_fn,
+    gold_multi_class_segmentation_collate_fn,
     gold_single_class_segmentation_collate_fn,
 )
 from any_gold.utils.dataset import (
@@ -119,7 +119,7 @@ class TestMultiClassSegmentationCollateFn:
             ),
         ]
 
-        output = gold_multiclass_class_segmentation_collate_fn(batch)
+        output = gold_multi_class_segmentation_collate_fn(batch)
 
         image = output["image"]
         assert isinstance(image, torch.Tensor)

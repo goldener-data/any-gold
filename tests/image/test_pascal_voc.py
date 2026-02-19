@@ -11,7 +11,7 @@ from torchvision.transforms.v2 import Compose, Resize
 from any_gold.image.pascal_voc import (
     PascalVOC2012Segmentation,
 )
-from any_gold.tools.image.utils import gold_multiclass_class_segmentation_collate_fn
+from any_gold.tools.image.utils import gold_multi_class_segmentation_collate_fn
 from tests.conftest import TEST_DATASET_LOADING
 
 
@@ -55,7 +55,7 @@ class TestPascalVOC2012Segmentation:
             batch_size=5,
             sampler=sampler,
             num_workers=0,
-            collate_fn=gold_multiclass_class_segmentation_collate_fn,
+            collate_fn=gold_multi_class_segmentation_collate_fn,
         )
         for batch in dataloader:
             assert batch["image"].shape == (5, 3, 224, 224)
