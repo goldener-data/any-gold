@@ -73,7 +73,7 @@ class AnyVisionSegmentationOutput(AnyOutput):
 
 
 class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
-    """Base class for any vision dataset.
+    """Base class for any vision dataset for the segmentation tasks in images.
 
     The image and mask are expected to be in the torchvision format with a shape C, H, W for images and masks.
 
@@ -107,6 +107,57 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
     @abstractmethod
     def get_raw(self, index: int) -> AnyVisionSegmentationOutput:
         """Get the raw data for the given index."""
+
+    @abstractmethod
+    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        """Get a description of the dataset."""
+
+    def __getitem__(self, index: int) -> AnyVisionSegmentationOutput:
+        """Get the transformed image and its corresponding information."""
+        output = self.get_raw(index)
+
+        image = output["image"]
+        mask = output["mask"]
+
+        if self.transform:
+            output["image"] = self.transform(image)
+        if self.target_transform:
+            output["mask"] = self.target_transform(mask)
+        if self.transforms:
+            output["image"], output["mask"] = self.transforms(image, mask)
+
+        return output
+
+
+class SingleLabelPerImageVisionSegmentationDataset(AnyVisionSegmentationDataset):
+    """Base class for any vision dataset for the single label per image segmentation tasks in images.
+
+    The image and mask are expected to be in the torchvision format with a shape C, H, W for images and masks.
+
+    Attributes:
+        root: The root directory where the dataset is stored.
+        transform: A transform to apply to the images.
+        target_transform: A transform to apply to the masks.
+        transforms: A transform to apply to both images and masks.
+        It cannot be set together with transform and target_transform.
+        override: If True, will override the existing dataset in the root directory. Default is False.
+    """
+
+    def __init__(
+        self,
+        root: str | Path,
+        transform: Callable | None = None,
+        target_transform: Callable | None = None,
+        transforms: Callable | None = None,
+        override: bool = False,
+    ) -> None:
+        super().__init__(
+            root=root,
+            transform=transform,
+            target_transform=target_transform,
+            transforms=transforms,
+            override=override,
+        )
 
     def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
         """Make a description of the dataset.
@@ -149,6 +200,7 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
 
                 shape = tuple(sample["image"].shape)
                 global_shape_count[shape] += 1
+
                 shape_count_per_label[label][shape] += 1
 
                 connected_components = extract_connected_components_from_binary_mask(
@@ -185,22 +237,6 @@ class AnyVisionSegmentationDataset(VisionDataset, AnyDataset):
             | global_description
             | label_description
         )
-
-    def __getitem__(self, index: int) -> AnyVisionSegmentationOutput:
-        """Get the transformed image and its corresponding information."""
-        output = self.get_raw(index)
-
-        image = output["image"]
-        mask = output["mask"]
-
-        if self.transform:
-            output["image"] = self.transform(image)
-        if self.target_transform:
-            output["mask"] = self.target_transform(mask)
-        if self.transforms:
-            output["image"], output["mask"] = self.transforms(image, mask)
-
-        return output
 
 
 class AnyRawDataset:

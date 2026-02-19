@@ -1,7 +1,7 @@
 import json
 import shutil
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Any
 
 from PIL import Image
 import torch
@@ -194,4 +194,9 @@ class PascalVOC2012Segmentation(AnyVisionSegmentationDataset, KaggleDataset):
 
         return PascalVOC2012SegmentationOutput(
             image=image, mask=TvMask(mono_mask.unsqueeze(0)), index=index, label=labels
+        )
+
+    def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
+        raise NotImplementedError(
+            "The describe method is not implemented for PascalVOC2012Segmentation."
         )

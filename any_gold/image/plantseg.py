@@ -9,6 +9,7 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.utils.dataset import (
     AnyVisionSegmentationOutput,
     AnyVisionSegmentationDataset,
+    SingleLabelPerImageVisionSegmentationDataset,
 )
 from any_gold.utils.zenodo import ZenodoZipBase
 
@@ -23,7 +24,7 @@ class PlantSegOutput(AnyVisionSegmentationOutput):
     plant: str
 
 
-class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
+class PlantSeg(SingleLabelPerImageVisionSegmentationDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in

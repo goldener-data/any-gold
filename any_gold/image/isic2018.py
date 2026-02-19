@@ -6,6 +6,7 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
     AnyVisionSegmentationOutput,
+    SingleLabelPerImageVisionSegmentationDataset,
 )
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
@@ -20,7 +21,9 @@ class ISIC2018SkinLesionOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class ISIC2018SkinLesionDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
+class ISIC2018SkinLesionDataset(
+    SingleLabelPerImageVisionSegmentationDataset, HuggingFaceDataset
+):
     """Meloma skin lesion segmentation dataset.
 
     This skin lesion dataset is introduced in

@@ -7,6 +7,7 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
     AnyVisionSegmentationOutput,
+    SingleLabelPerImageVisionSegmentationDataset,
 )
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
@@ -23,7 +24,7 @@ class MVTecADOutput(AnyVisionSegmentationOutput):
     target: torch.Tensor
 
 
-class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
+class MVTecADDataset(SingleLabelPerImageVisionSegmentationDataset, HuggingFaceDataset):
     """MVTec Anomaly Detection Dataset.
 
     The Mvtec Anomaly Detection dataset is introduced in

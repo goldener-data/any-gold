@@ -8,6 +8,7 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 from any_gold.utils.dataset import (
     AnyVisionSegmentationDataset,
     AnyVisionSegmentationOutput,
+    SingleLabelPerImageVisionSegmentationDataset,
 )
 from any_gold.utils.synapse import SynapseZipBase
 
@@ -21,7 +22,7 @@ class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
+class KPITask1PatchLevel(SingleLabelPerImageVisionSegmentationDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
