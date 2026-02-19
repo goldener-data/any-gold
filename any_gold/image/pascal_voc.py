@@ -148,15 +148,15 @@ class PascalVOC2012Segmentation(MultiClassVisionSegmentationDataset, KaggleDatas
                     f"Please use override=True to download the dataset again."
                 )
 
-            shutil.copy(image_path, target)
-            shutil.copy(mask_path, target)
+            shutil.move(image_path, target)
+            shutil.move(mask_path, target)
 
     def _setup(self) -> None:
         root = self.root / self.split
         if self.override or not root.exists():
             self.download()
 
-        self.samples = [image_path for image_path in root.glob("*.jpg")]
+        self.samples = [image_path for image_path in sorted(root.glob("*.jpg"))]
 
     def __len__(self) -> int:
         return len(self.samples)

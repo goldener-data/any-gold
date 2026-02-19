@@ -114,9 +114,9 @@ class PlantSeg(SingleClassVisionSegmentationDataset, ZenodoZipBase):
             self.root
             / f"plantsegv{self.version}/{self._VERSIONS[self.version]['metadata']}"
         )
-        for image_path in (
-            self.root / f"plantsegv{self.version}/images/{self.split}"
-        ).glob("*.jpg"):
+        for image_path in sorted(
+            (self.root / f"plantsegv{self.version}/images/{self.split}").glob("*.jpg")
+        ):
             row = metadata[metadata["Name"] == image_path.name]
             if len(row) != 1:
                 raise ValueError(

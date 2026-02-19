@@ -102,7 +102,7 @@ class KPITask1PatchLevel(SingleClassVisionSegmentationDataset, SynapseZipBase):
             (image_path, class_dir.name)
             for class_dir in root.iterdir()
             for patch_dir in class_dir.iterdir()
-            for image_path in (patch_dir / "img").glob("*.jpg")
+            for image_path in sorted((patch_dir / "img").glob("*.jpg"))
         ]
 
     def __len__(self) -> int:

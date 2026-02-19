@@ -105,7 +105,7 @@ class DeepGlobeRoadExtraction(SingleClassVisionSegmentationDataset, KaggleDatase
         if self.override or not root.exists():
             self.download()
 
-        self.samples = [image_path for image_path in root.glob("*_sat.jpg")]
+        self.samples = [image_path for image_path in sorted(root.glob("*_sat.jpg"))]
 
     def __len__(self) -> int:
         return len(self.samples)

@@ -6,15 +6,16 @@ from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 import fiftyone as fo
 from any_gold.tools.image.fiftyone_conversion import (
     build_fo_detections_from_connected_components,
-    build_fo_sample_from_any_vision_segmentation_output,
-    build_fo_dataset_from_any_vision_segmentation_dataset,
+    build_fo_sample_from_single_class_vision_segmentation_output,
+    build_fo_dataset_from_single_class_vision_segmentation_dataset,
 )
 from any_gold.tools.image.connected_component import ConnectedComponent
 from typing import Callable
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationOutput,
     AnyVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
+    SingleClassVisionSegmentationDataset,
 )
 
 
@@ -52,13 +53,13 @@ class TestBuildFoSampleFromAnyVisionSegmentationOutput:
     def test_sample_conversion(
         self, tmp_path: Path, image: TvImage, mask: TvMask
     ) -> None:
-        sample = AnyVisionSegmentationOutput(
+        sample = SingleClassVisionSegmentationOutput(
             label="dog",
             index=42,
             image=image,
             mask=mask,
         )
-        fo_sample = build_fo_sample_from_any_vision_segmentation_output(
+        fo_sample = build_fo_sample_from_single_class_vision_segmentation_output(
             sample, tmp_path
         )
         assert isinstance(fo_sample, fo.Sample)
@@ -73,13 +74,13 @@ class TestBuildFoSampleFromAnyVisionSegmentationOutput:
         tmp_path: Path,
         image: TvImage,
     ) -> None:
-        sample = AnyVisionSegmentationOutput(
+        sample = SingleClassVisionSegmentationOutput(
             label="dog",
             index=42,
             image=image,
             mask=TvMask(torch.zeros((1, 10, 10), dtype=torch.uint8)),  # No mask
         )
-        fo_sample = build_fo_sample_from_any_vision_segmentation_output(
+        fo_sample = build_fo_sample_from_single_class_vision_segmentation_output(
             sample, tmp_path
         )
         assert isinstance(fo_sample, fo.Sample)
@@ -93,8 +94,8 @@ class TestBuildFoSampleFromAnyVisionSegmentationOutput:
 @pytest.fixture
 def dummy_dataset(
     tmp_path: Path, image: TvImage, mask: TvMask
-) -> AnyVisionSegmentationDataset:
-    class DummyDataset(AnyVisionSegmentationDataset):
+) -> SingleClassVisionSegmentationDataset:
+    class DummyDataset(SingleClassVisionSegmentationDataset):
         def __init__(
             self,
             root: str | Path,
@@ -114,8 +115,8 @@ def dummy_dataset(
         def __len__(self) -> int:
             return 2
 
-        def get_raw(self, idx: int) -> AnyVisionSegmentationOutput:
-            return AnyVisionSegmentationOutput(
+        def get_raw(self, idx: int) -> SingleClassVisionSegmentationOutput:
+            return SingleClassVisionSegmentationOutput(
                 label="a",
                 image=image,
                 mask=mask
@@ -131,7 +132,7 @@ class TestBuildFoDatasetFromAnyVisionSegmentationDataset:
     def test_dataset_conversion(
         self, tmp_path: Path, dummy_dataset: AnyVisionSegmentationDataset, mask: TvMask
     ) -> None:
-        fo_dataset = build_fo_dataset_from_any_vision_segmentation_dataset(
+        fo_dataset = build_fo_dataset_from_single_class_vision_segmentation_dataset(
             dummy_dataset,
             dataset_name="test_ds",
             save_dir=tmp_path,
@@ -147,7 +148,7 @@ class TestBuildFoDatasetFromAnyVisionSegmentationDataset:
     def test_dataset_conversion_with_sampler(
         self, tmp_path: Path, dummy_dataset: AnyVisionSegmentationDataset, mask: TvMask
     ) -> None:
-        fo_dataset = build_fo_dataset_from_any_vision_segmentation_dataset(
+        fo_dataset = build_fo_dataset_from_single_class_vision_segmentation_dataset(
             dummy_dataset,
             dataset_name="test_ds",
             save_dir=tmp_path,

@@ -3,15 +3,20 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.tools.image.utils import (
-    gold_segmentation_collate_fn,
+    gold_any_segmentation_collate_fn,
     get_unique_pixel_values,
+    gold_multiclass_class_segmentation_collate_fn,
+    gold_single_class_segmentation_collate_fn,
 )
-from any_gold.utils.dataset import AnyVisionSegmentationOutput
+from any_gold.utils.dataset import (
+    AnyVisionSegmentationOutput,
+    SingleClassVisionSegmentationOutput,
+    MultiClassVisionSegmentationOutput,
+)
 
 
-def _make_sample(
+def make_segmentation_sample(
     index: int,
-    label: str | set[str],
     image_shape: tuple[int, int, int] = (3, 4, 4),
     mask_shape: tuple[int, int, int] = (1, 4, 4),
 ) -> AnyVisionSegmentationOutput:
@@ -21,18 +26,49 @@ def _make_sample(
         index=index,
         image=image,
         mask=mask,
+    )
+
+
+def make_single_class_segmentation_sample(
+    index: int,
+    label: str = "cat",
+    image_shape: tuple[int, int, int] = (3, 4, 4),
+    mask_shape: tuple[int, int, int] = (1, 4, 4),
+) -> SingleClassVisionSegmentationOutput:
+    image = TvImage(torch.zeros(image_shape, dtype=torch.uint8))
+    mask = TvMask(torch.ones(mask_shape, dtype=torch.uint8))
+    return SingleClassVisionSegmentationOutput(
+        index=index,
+        image=image,
+        mask=mask,
         label=label,
+    )
+
+
+def make_multi_class_segmentation_sample(
+    index: int,
+    labels: set[str] = {"cat", "dog"},
+    image_shape: tuple[int, int, int] = (3, 4, 4),
+    mask_shape: tuple[int, int, int] = (1, 4, 4),
+) -> MultiClassVisionSegmentationOutput:
+    image = TvImage(torch.zeros(image_shape, dtype=torch.uint8))
+    mask = TvMask(torch.ones(mask_shape, dtype=torch.uint8))
+    return MultiClassVisionSegmentationOutput(
+        index=index,
+        image=image,
+        mask=mask,
+        labels=labels,
     )
 
 
 class TestGoldSegmentationCollateFn:
     def test_gold_segmentation_collate_fn_stacks_tensors_and_indices(self) -> None:
         batch = [
-            _make_sample(index=0, label="cat"),
-            _make_sample(index=1, label="dog"),
+            make_segmentation_sample(index=0),
+            make_segmentation_sample(index=1),
         ]
 
-        output = gold_segmentation_collate_fn(batch)
+        output = gold_any_segmentation_collate_fn(batch)
 
         image = output["image"]
         assert isinstance(image, torch.Tensor)
@@ -40,31 +76,63 @@ class TestGoldSegmentationCollateFn:
         mask = output["mask"]
         assert isinstance(mask, torch.Tensor)
         assert mask.shape == (2, 1, 4, 4)
-        label = output["label"]
-        assert isinstance(label, list)
-        assert label == ["cat", "dog"]
         output_index = output["index"]
         assert isinstance(output_index, torch.Tensor)
         assert torch.equal(output_index, torch.tensor([0, 1]))
 
+
+class TestSingleClassSegmentationCollateFn:
     def test_gold_segmentation_collate_fn_keeps_list_labels(self) -> None:
         batch = [
-            _make_sample(index=0, label=set(["cat", "pet"])),
-            _make_sample(index=1, label=set(["dog", "pet"])),
+            make_single_class_segmentation_sample(
+                index=0,
+            ),
+            make_single_class_segmentation_sample(index=1, label="dog"),
         ]
 
-        output = gold_segmentation_collate_fn(batch)
+        output = gold_single_class_segmentation_collate_fn(batch)
 
-        assert output["label"] == [["cat", "pet"], ["dog", "pet"]]
+        image = output["image"]
+        assert isinstance(image, torch.Tensor)
+        assert image.shape == (2, 3, 4, 4)
+        mask = output["mask"]
+        assert isinstance(mask, torch.Tensor)
+        assert mask.shape == (2, 1, 4, 4)
+        output_index = output["index"]
+        assert isinstance(output_index, torch.Tensor)
+        assert torch.equal(output_index, torch.tensor([0, 1]))
+        output_label = output["label"]
+        assert isinstance(output_label, list)
+        assert output_label == ["cat", "dog"]
 
-    def test_gold_segmentation_collate_fn_raises_on_mismatched_shapes(self) -> None:
+
+class TestMultiClassSegmentationCollateFn:
+    def test_gold_segmentation_collate_fn_keeps_list_labels(self) -> None:
         batch = [
-            _make_sample(index=0, label="cat", image_shape=(3, 4, 4)),
-            _make_sample(index=1, label="dog", image_shape=(3, 5, 4)),
+            make_multi_class_segmentation_sample(
+                index=0,
+                labels={"cat", "dog"},
+            ),
+            make_multi_class_segmentation_sample(
+                index=1,
+                labels={"car"},
+            ),
         ]
 
-        with pytest.raises(RuntimeError):
-            gold_segmentation_collate_fn(batch)
+        output = gold_multiclass_class_segmentation_collate_fn(batch)
+
+        image = output["image"]
+        assert isinstance(image, torch.Tensor)
+        assert image.shape == (2, 3, 4, 4)
+        mask = output["mask"]
+        assert isinstance(mask, torch.Tensor)
+        assert mask.shape == (2, 1, 4, 4)
+        output_index = output["index"]
+        assert isinstance(output_index, torch.Tensor)
+        assert torch.equal(output_index, torch.tensor([0, 1]))
+        output_labels = output["labels"]
+        assert isinstance(output_labels, list)
+        assert output_labels == [{"cat", "dog"}, {"car"}]
 
 
 class TestGetUniquePixelValues:
