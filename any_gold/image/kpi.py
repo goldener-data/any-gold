@@ -6,13 +6,13 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.synapse import SynapseZipBase
 
 
-class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
+class KPITask1PatchLevelOutput(SingleClassVisionSegmentationOutput):
     """Output class for KPI Task 1 Patch Level dataset.
 
     The label is the name of the disease.
@@ -21,7 +21,7 @@ class KPITask1PatchLevelOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
+class KPITask1PatchLevel(SingleClassVisionSegmentationDataset, SynapseZipBase):
     """KPI Task 1 Patch Level Dataset from Synapse.
 
     The KPI Task 1 Patch Level dataset is introduced in
@@ -71,7 +71,7 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -93,16 +93,18 @@ class KPITask1PatchLevel(AnyVisionSegmentationDataset, SynapseZipBase):
             override=override,
         )
 
+        self.samples: list[tuple[Path, str]]
+
     def _setup(self) -> None:
         root = self.root / self._ENTITIES[self.split]["name"]
         if self.override or not root.exists():
             self.download()
 
-        self.samples: list[tuple[Path, str]] = [
+        self.samples = [
             (image_path, class_dir.name)
             for class_dir in root.iterdir()
             for patch_dir in class_dir.iterdir()
-            for image_path in (patch_dir / "img").glob("*.jpg")
+            for image_path in sorted((patch_dir / "img").glob("*.jpg"))
         ]
 
     def __len__(self) -> int:

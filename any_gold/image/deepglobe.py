@@ -7,13 +7,13 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.kaggle import KaggleDataset
 
 
-class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
+class DeepGlobeRoadExtractionOutput(SingleClassVisionSegmentationOutput):
     """Output class for DeepGlobe Road Extraction dataset.
 
     The label will always be `road`.
@@ -22,7 +22,7 @@ class DeepGlobeRoadExtractionOutput(AnyVisionSegmentationOutput):
     pass
 
 
-class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
+class DeepGlobeRoadExtraction(SingleClassVisionSegmentationDataset, KaggleDataset):
     """Deepglobe road extraction dataset from kaggle.
 
     The DeepGlobe road extraction dataset is introduced in
@@ -69,7 +69,7 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
 
         self.split = split
 
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -82,6 +82,8 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
             handle=self._HANDLE,
             override=override,
         )
+
+        self.samples: list[Path]
 
     def _move_data_to_root(self, kaggle_cache: Path) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
@@ -105,7 +107,7 @@ class DeepGlobeRoadExtraction(AnyVisionSegmentationDataset, KaggleDataset):
         if self.override or not root.exists():
             self.download()
 
-        self.samples = [image_path for image_path in root.glob("*_sat.jpg")]
+        self.samples = [image_path for image_path in sorted(root.glob("*_sat.jpg"))]
 
     def __len__(self) -> int:
         return len(self.samples)

@@ -7,23 +7,23 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationOutput,
-    AnyVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.zenodo import ZenodoZipBase
 
 
-class PlantSegOutput(AnyVisionSegmentationOutput):
+class PlantSegOutput(SingleClassVisionSegmentationOutput):
     """Output class for PlantSeg dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include plant species.
+    It extends the SingleClassVisionSegmentationOutput class to include plant species.
     The label will be the disease on the plant.
     """
 
     plant: str
 
 
-class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
+class PlantSeg(SingleClassVisionSegmentationDataset, ZenodoZipBase):
     """PlantSeg Dataset from Zenodo.
 
     The PlantSeg dataset is introduced in
@@ -77,7 +77,7 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
         transforms: Callable | None = None,
         override: bool = False,
     ) -> None:
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,
@@ -105,18 +105,20 @@ class PlantSeg(AnyVisionSegmentationDataset, ZenodoZipBase):
             override=override,
         )
 
+        self.samples: list[tuple[Path, str, str]]
+
     def _setup(self) -> None:
         if self.override or not self.root.exists():
             self.download()
 
-        self.samples: list[tuple[Path, str, str]] = []
+        self.samples = []
         metadata = pd.read_csv(
             self.root
             / f"plantsegv{self.version}/{self._VERSIONS[self.version]['metadata']}"
         )
-        for image_path in (
-            self.root / f"plantsegv{self.version}/images/{self.split}"
-        ).glob("*.jpg"):
+        for image_path in sorted(
+            (self.root / f"plantsegv{self.version}/images/{self.split}").glob("*.jpg")
+        ):
             row = metadata[metadata["Name"] == image_path.name]
             if len(row) != 1:
                 raise ValueError(

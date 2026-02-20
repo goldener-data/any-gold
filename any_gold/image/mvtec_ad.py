@@ -5,16 +5,16 @@ import torch
 from torchvision.tv_tensors import Image as TvImage, Mask as TvMask
 
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationDataset,
-    AnyVisionSegmentationOutput,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 from any_gold.utils.hugging_face import HuggingFaceDataset
 
 
-class MVTecADOutput(AnyVisionSegmentationOutput):
+class MVTecADOutput(SingleClassVisionSegmentationOutput):
     """Output class for MVTec Anomaly Detection dataset.
 
-    It extends the AnyVisionSegmentationOutput class to include
+    It extends the SingleClassVisionSegmentationOutput class to include
     target (torch tensor indicating if the label is an anomaly or not).
 
     The label is the type of defect (`good` in absence of defect).
@@ -23,7 +23,7 @@ class MVTecADOutput(AnyVisionSegmentationOutput):
     target: torch.Tensor
 
 
-class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
+class MVTecADDataset(SingleClassVisionSegmentationDataset, HuggingFaceDataset):
     """MVTec Anomaly Detection Dataset.
 
     The Mvtec Anomaly Detection dataset is introduced in
@@ -75,7 +75,7 @@ class MVTecADDataset(AnyVisionSegmentationDataset, HuggingFaceDataset):
             hf_split=f"{self.category}.{self.split}",
             override=override,
         )
-        AnyVisionSegmentationDataset.__init__(
+        SingleClassVisionSegmentationDataset.__init__(
             self,
             root=root,
             transform=transform,

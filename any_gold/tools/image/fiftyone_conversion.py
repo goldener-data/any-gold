@@ -13,8 +13,8 @@ from any_gold.tools.image.connected_component import (
     extract_connected_components_from_binary_mask,
 )
 from any_gold.utils.dataset import (
-    AnyVisionSegmentationOutput,
-    AnyVisionSegmentationDataset,
+    SingleClassVisionSegmentationDataset,
+    SingleClassVisionSegmentationOutput,
 )
 
 
@@ -66,16 +66,16 @@ def build_fo_detections_from_connected_components(
     return fo.Detections(detections=detections)
 
 
-def build_fo_sample_from_any_vision_segmentation_output(
-    sample: AnyVisionSegmentationOutput,
+def build_fo_sample_from_single_class_vision_segmentation_output(
+    sample: SingleClassVisionSegmentationOutput,
     save_dir: Path,
 ) -> fo.Sample:
-    """Build a FiftyOne sample from an AnyVisionSegmentationOutput.
+    """Build a FiftyOne sample from an SingleClassVisionSegmentationOutput.
 
-    So far, it is assumed that the mask provided by an AnyVisionSegmentationOutput is a binary masks.
+    So far, it is assumed that the mask provided by an SingleClassVisionSegmentationOutput is a binary masks.
 
     Args:
-        sample: The AnyVisionSegmentationOutput to convert.
+        sample: The SingleClassVisionSegmentationOutput to convert.
         save_dir: The directory where the images and masks will be saved. It is more efficient to save them locally
         than storing everything in RAM. If the data is not required to be kept, it can be a temporary directory.
 
@@ -117,8 +117,8 @@ def build_fo_sample_from_any_vision_segmentation_output(
     )
 
 
-def build_fo_dataset_from_any_vision_segmentation_dataset(
-    dataset: AnyVisionSegmentationDataset,
+def build_fo_dataset_from_single_class_vision_segmentation_dataset(
+    dataset: SingleClassVisionSegmentationDataset,
     dataset_name: str,
     save_dir: Path,
     num_samples: int | None = None,
@@ -128,7 +128,7 @@ def build_fo_dataset_from_any_vision_segmentation_dataset(
     num_workers: int = 2,
     seed: int | None = None,
 ) -> fo.Dataset:
-    """Build a FiftyOne dataset from an AnyVisionSegmentationDataset.
+    """Build a FiftyOne dataset from an SingleClassVisionSegmentationDataset.
 
     Args:
         dataset: The AnyVisionSegmentationDataset to convert. It is assumed that the segmentation masks are binary masks.
@@ -143,7 +143,7 @@ def build_fo_dataset_from_any_vision_segmentation_dataset(
         seed: The random seed for sampling the dataset. If None, no specific seed is set.
 
     Returns:
-        A FiftyOne dataset containing the samples from the AnyVisionSegmentationDataset.
+        A FiftyOne dataset containing the samples from the SingleClassVisionSegmentationDataset.
     """
     fo_dataset = fo.Dataset(dataset_name, persistent=persistent, overwrite=overwrite)
 
@@ -169,7 +169,7 @@ def build_fo_dataset_from_any_vision_segmentation_dataset(
     for batch in tqdm(dataloader, desc="Converting samples to FiftyOne format"):
         for sample in batch:
             fo_dataset.add_sample(
-                build_fo_sample_from_any_vision_segmentation_output(
+                build_fo_sample_from_single_class_vision_segmentation_output(
                     sample=sample,
                     save_dir=save_dir,
                 )
