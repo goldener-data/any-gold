@@ -286,7 +286,7 @@ class MultiClassVisionSegmentationDataset(AnyVisionSegmentationDataset):
 
     def describe(self, batch_size: int = 1, num_workers: int = 0) -> dict[str, Any]:
         raise NotImplementedError(
-            "The describe method is not implemented for MultiClassVisionSegmentationDataset. "
+            "The describe method is not implemented for MultiClassVisionSegmentationDataset."
         )
 
 
