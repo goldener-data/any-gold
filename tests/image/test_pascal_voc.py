@@ -26,6 +26,13 @@ class TestPascalVOC2012Segmentation:
             )
         )
 
+    def test_label_mapping_is_public(self):
+        assert hasattr(PascalVOC2012Segmentation, "LABEL_MAPPING")
+        assert isinstance(PascalVOC2012Segmentation.LABEL_MAPPING, dict)
+        assert len(PascalVOC2012Segmentation.LABEL_MAPPING) == 22
+        assert (0, 0, 0) in PascalVOC2012Segmentation.LABEL_MAPPING
+        assert PascalVOC2012Segmentation.LABEL_MAPPING[(0, 0, 0)] == "background"
+
     @pytest.mark.skipif(
         not TEST_DATASET_LOADING, reason="TEST_DATASET_LOADING is not True"
     )

@@ -44,11 +44,12 @@ class PascalVOC2012Segmentation(MultiClassVisionSegmentationDataset, KaggleDatas
             It cannot be set together with transform and target_transform.
         override: If True, will override the existing dataset in the root directory. Default is False.
         samples: A list of file paths to the images in the specified split.
+        LABEL_MAPPING: A dictionary mapping RGB color tuples to class label names.
     """
 
     _HANDLE = "gopalbhattrai/pascal-voc-2012-dataset/versions/1"
     _SPLITS = ("train", "val")
-    _LABEL_MAPPING: dict[tuple[int, int, int], str] = {
+    LABEL_MAPPING: dict[tuple[int, int, int], str] = {
         (0, 0, 0): "background",
         (128, 0, 0): "aeroplane",
         (0, 128, 0): "bicycle",
@@ -175,7 +176,7 @@ class PascalVOC2012Segmentation(MultiClassVisionSegmentationDataset, KaggleDatas
         labels = set()
         for pixel_value in unique_pixel_values:
             assert len(pixel_value) == 3
-            labels.add(self._LABEL_MAPPING[pixel_value])
+            labels.add(self.LABEL_MAPPING[pixel_value])
 
         return PascalVOC2012SegmentationOutput(
             image=image, mask=mask, index=index, labels=labels
